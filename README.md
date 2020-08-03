@@ -1,11 +1,12 @@
 # python-dataset-sdk
 
 ## One time config
-python -V  # for python version (2/3)
+```python -V  # for python version (2/3)
 python -m pip --version
 python -m pip install --upgrade pip setuptools wheel
 python -m pip install tqdm
 python -m pip install --user --upgrade twine
+```
 ```
 cat <<EOF > ~/.pypirc
 [distutils] 
