@@ -1,5 +1,12 @@
 # python-dataset-sdk
 
+## check default python version
+### on debian linux
+`python --version` should equal more than 3.6
+
+otherwise switch version with
+`update-alternatives --config python` as root
+
 ## One time config
 ```python -V  # for python version (2/3)
 python -m pip --version
