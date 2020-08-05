@@ -6,15 +6,21 @@ import requests  # later use
 import os
 import hashlib
 import time
-
+import aiohttp
+import asyncio
 
 class MeteoblueDatasetClient(object):
 
     def __init__(self, apikey: str):
         self.apiKey = apikey
 
+    # async def _check_status(self, queue_id: int):
+    #     async with session.get('http://my.meteoblue.com/queue/status/' + queue_id) as response:
+    #         if response.json()["status"] == "finished":
+    #             break
+
     "Query async api dataset interface"
-    def query(self, params: dict):
+    async def query(self, params: dict):
         """
         query async dataset api interface
         :param params: params for meteoblue dataset api
@@ -56,11 +62,11 @@ class MeteoblueDatasetClient(object):
         print("Job is queued")
 
         while True:
-            r = requests.get('http://my.meteoblue.com/queue/status/' + queue["id"])
-            queue = r.json()
-            if queue["status"] == "finished":
-                break
-
+            #r = requests.get('http://my.meteoblue.com/queue/status/' + queue["id"])
+            async with aiohttp.ClientSession() as session:
+                async with session.get('http://my.meteoblue.com/queue/status/' + queue["id"]) as response:
+                    if response.json()["status"] == "finished":
+                        break
             print("Job status " + queue['status'] + ". Sleeping for 5 seconds")
             time.sleep(5)
 
