@@ -24,6 +24,11 @@ class MeteoblueDatasetClient(object):
             os.makedirs(self._tmp_directory)
 
     async def _job_finished(self, queue_id: int):
+        """
+        Wait until job has been processed by backend servers
+        :param queue_id: id of queued job
+        :return: json body with status information
+        """
         while True:
             async with self._session.get('http://my.meteoblue.com/queue/status/' + str(queue_id)) as response:
                 json = await response.json()
@@ -33,6 +38,11 @@ class MeteoblueDatasetClient(object):
             await asyncio.sleep(5)
 
     async def _submit_query(self, params: dict):
+        """
+        Try to submit query to api
+        :param params: query parameters for meteoblue dataset api
+        :return: json body with status information
+        """
         async with self._session.post(
                 'http://my.meteoblue.com/dataset/query?apikey=' + self._apiKey, json=params) as response:
             json = await response.json()
@@ -47,6 +57,11 @@ class MeteoblueDatasetClient(object):
             return json
 
     async def _fetch_result(self, queue_id):
+        """
+        Fetch api results and write to temp file
+        :param queue_id: id of queued job
+        :return: nothing/void
+        """
         async with self._session.get('http://queueresults.meteoblue.com/' + queue_id) as response:
             with open(self._tmp_file, 'wb+') as f:
                 while True:
@@ -56,6 +71,11 @@ class MeteoblueDatasetClient(object):
                     f.write(chunk)
 
     async def _query(self, params: dict):
+        """
+        Call async functions
+        :param params: query parameters for meteoblue dataset api
+        :return: nothing/void
+        """
         async with aiohttp.ClientSession() as self._session:
             await self._submit_query(params)
             params["runOnJobQueue"] = True
@@ -65,12 +85,11 @@ class MeteoblueDatasetClient(object):
             await self._job_finished(queue_info['id'])
             await self._fetch_result(queue_info['id'])
 
-    "Query async api dataset interface"
     def query(self, params: dict):
         """
-        query async dataset api interface
-        :param params: params for meteoblue dataset api
-        :return: result data set
+        Query async dataset api interface
+        :param params: query parameters for meteoblue dataset api
+        :return: file path containing results
         """
 
         self._tmp_file = self._tmp_directory + hashlib.sha256(repr(params).encode('utf-8')).hexdigest()
