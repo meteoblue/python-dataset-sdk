@@ -2,80 +2,84 @@
 meteoblue dataset client
 """
 
-import requests  # later use
+# TODO: soft code urls
+# TODO: check if temp fs is really necessary
+# TODO: write exceptions for backend error(s)
+
+
 import os
 import hashlib
-import time
 import aiohttp
 import asyncio
+
 
 class MeteoblueDatasetClient(object):
 
     def __init__(self, apikey: str):
-        self.apiKey = apikey
+        self._apiKey = apikey
+        self._tmp_directory = './api_temp/'
+        self._tmp_file = None
 
-    # async def _check_status(self, queue_id: int):
-    #     async with session.get('http://my.meteoblue.com/queue/status/' + queue_id) as response:
-    #         if response.json()["status"] == "finished":
-    #             break
+        if not os.path.exists(self._tmp_directory):
+            os.makedirs(self._tmp_directory)
+
+    async def _job_finished(self, queue_id: int):
+        while True:
+            async with self._session.get('http://my.meteoblue.com/queue/status/' + str(queue_id)) as response:
+                json = await response.json()
+                if json["status"] == "finished":
+                    break
+            print("Job status " + json['status'] + ". Sleeping for 5 seconds")
+            await asyncio.sleep(5)
+
+    async def _submit_query(self, params: dict):
+        async with self._session.post(
+                'http://my.meteoblue.com/dataset/query?apikey=' + self._apiKey, json=params) as response:
+            json = await response.json()
+            if 'runOnJobQueue' in params:
+                if response.status != 200:
+                    raise Exception("API returned error", response.content)
+            else:
+                if response.status != 400:
+                    raise Exception("API returned error", response.content)
+                if json['error_message'] != 'This job must be executed on a job-queue':
+                    raise Exception("API returned error", json['error_message'])
+            return json
+
+    async def _fetch_result(self, queue_id):
+        async with self._session.get('http://queueresults.meteoblue.com/' + queue_id) as response:
+            with open(self._tmp_file, 'wb+') as f:
+                while True:
+                    chunk = await response.content.read(512)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+
+    async def _query(self, params: dict):
+        async with aiohttp.ClientSession() as self._session:
+            await self._submit_query(params)
+            params["runOnJobQueue"] = True
+            print("Queueing job")
+            queue_info = await self._submit_query(params)
+            print("Waiting until job has finished")
+            await self._job_finished(queue_info['id'])
+            await self._fetch_result(queue_info['id'])
 
     "Query async api dataset interface"
-    async def query(self, params: dict):
+    def query(self, params: dict):
         """
         query async dataset api interface
         :param params: params for meteoblue dataset api
         :return: result data set
         """
 
-        directory = './apitemp/'
-        tempfile = directory + hashlib.sha256(repr(params).encode('utf-8')).hexdigest()
+        self._tmp_file = self._tmp_directory + hashlib.sha256(repr(params).encode('utf-8')).hexdigest()
+        if os.path.isfile(self._tmp_file):
+            return self._tmp_file
 
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self._query(params))
+        loop.close()
 
-        if os.path.isfile(tempfile):
-            return tempfile
-
-        r = requests.post('http://my.meteoblue.com/dataset/query?apikey=' + self.apiKey, json=params)
-        # print(r.status_code)
-        # print(r.content)
-
-        # that doesn't work
-        # if r.status_code == 200:
-        #     with open(tempfile, 'wb+') as f:
-        #         f.write(r.content)
-        #     return tempfile
-
-        if r.status_code != 400:
-            raise Exception("API returned error", r.content)
-
-        # job must be executed on a job queue
-        error = r.json()
-        if error['error_message'] != "This job must be executed on a job-queue":
-            raise Exception("API returned error", error['error_message'])
-        params["runOnJobQueue"] = True
-        r = requests.post('http://my.meteoblue.com/dataset/query?apikey=' + self.apiKey, json=params)
-        if r.status_code != 200:
-            raise Exception("API returned error", r.content)
-        queue = r.json()
-
-        print("Job is queued")
-
-        while True:
-            #r = requests.get('http://my.meteoblue.com/queue/status/' + queue["id"])
-            async with aiohttp.ClientSession() as session:
-                async with session.get('http://my.meteoblue.com/queue/status/' + queue["id"]) as response:
-                    if response.json()["status"] == "finished":
-                        break
-            print("Job status " + queue['status'] + ". Sleeping for 5 seconds")
-            time.sleep(5)
-
-        # file is now ready to download
-        r = requests.get('http://queueresults.meteoblue.com/' + queue["id"])
-        if r.status_code != 200:
-            raise Exception("API returned error", r.content)
-
-        with open(tempfile, 'wb+') as f:
-            f.write(r.content)
-
-        return tempfile
+        return self._tmp_file
