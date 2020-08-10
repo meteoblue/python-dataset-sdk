@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mbdataset",
-    version="0.0.8",
+    version="0.0.10",
     author="Jonas Wolff",
     author_email="jonas.wolff@meteoblue.com",
     description="Provides easy access to meteoblue dataset api.",

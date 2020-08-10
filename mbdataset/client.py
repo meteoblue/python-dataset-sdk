@@ -11,11 +11,14 @@ import os
 import hashlib
 import aiohttp
 import asyncio
+import logging
 
 
 class Client(object):
 
     def __init__(self, apikey: str):
+        logging.basicConfig(filename='mbdataset.log', level=logging.INFO)
+
         self._apiKey = apikey
         self._tmp_directory = './api_temp/'
         self._tmp_file = None
@@ -34,7 +37,7 @@ class Client(object):
                 json = await response.json()
                 if json["status"] == "finished":
                     break
-            print("Job status " + json['status'] + ". Sleeping for 5 seconds")
+            logging.info("Job status " + json['status'] + ". Sleeping for 5 seconds")
             await asyncio.sleep(5)
 
     async def _submit_query(self, params: dict):
@@ -79,9 +82,9 @@ class Client(object):
         async with aiohttp.ClientSession() as self._session:
             await self._submit_query(params)
             params["runOnJobQueue"] = True
-            print("Queueing job")
+            logging.info("Queueing job")
             queue_info = await self._submit_query(params)
-            print("Waiting until job has finished")
+            logging.info("Waiting until job has finished")
             await self._job_finished(queue_info['id'])
             await self._fetch_result(queue_info['id'])
 
