@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="mbdataset", # Replace with your own username
+    name="mbdataset",
     version="0.0.8",
     author="Jonas Wolff",
     author_email="jonas.wolff@meteoblue.com",

@@ -10,10 +10,14 @@ otherwise switch version with
 
 ## Usage / Test
 
+### Install module from pip
+`pip3 install mbdataset`
+
+### Query some data
 ```
 qparams = {'units': {'temperature': 'C', 'velocity': 'km/h', 'length': 'metric', 'energy': 'watts'}, 'geometry': {'type': 'Polygon', 'coordinates': [[[7.313768, 46.982946], [7.313768, 47.692346], [8.621369, 47.692346], [8.621369, 46.982946], [7.313768, 46.982946]]]}, 'format': 'netCDF', 'timeIntervals': ['2000-01-01T+00:00/2019-01-04T+00:00'], 'timeIntervalsAlignment': 'none', 'queries': [{'domain': 'NEMSGLOBAL', 'gapFillDomain': None, 'timeResolution': 'hourly', 'codes': [{'code': 11, 'level': '2 m above gnd'}]}]}
-from meteoblue_dataset_sdk import *
-mb = MeteoblueDatasetClient(apikey='XXXXXXXXXXXXXXX')  # ask for key
+import mbdataset
+mb = mbdataset.Client(apikey='XXXXXXXXXXXXXXX')  # ask for key
 mb.query(qparams)
 ```
 
@@ -37,28 +41,10 @@ EOF
 ```
 
 ### Update metadata in setup.py
-```
-setuptools.setup(
-    name="meteoblue-dataset-sdk", # Replace with your own username
-    version="0.0.2",
-    author="Jonas Wolff",
-    author_email="jonas.wolff@meteoblue.com",
-    description="Provides easy access to meteoblue dataset sdk.",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/meteoblue/python-dataset-sdk",
-    packages=setuptools.find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
-    python_requires='>=3.6',
-)
-```
+See [setup.py](setup.py).
 
 ### Compile
-`python setup.py bdist_wheel`
+`python3 setup.py sdist bdist_wheel`
 
 ### Upload
-`python -m twine upload --skip-existing dist/*`
+`python3 -m twine upload --skip-existing dist/* --non-interactive -p XXXXXXXXXXXXXXXXXXXX`
