@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="meteoblue-dataset-sdk", # Replace with your own username
-    version="0.0.2",
+    name="mbdataset", # Replace with your own username
+    version="0.0.8",
     author="Jonas Wolff",
     author_email="jonas.wolff@meteoblue.com",
     description="Provides easy access to meteoblue dataset sdk.",

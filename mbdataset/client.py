@@ -13,7 +13,7 @@ import aiohttp
 import asyncio
 
 
-class MeteoblueDatasetClient(object):
+class Client(object):
 
     def __init__(self, apikey: str):
         self._apiKey = apikey
