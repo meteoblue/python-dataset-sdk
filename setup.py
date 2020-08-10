@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.8",
     author="Jonas Wolff",
     author_email="jonas.wolff@meteoblue.com",
-    description="Provides easy access to meteoblue dataset sdk.",
+    description="Provides easy access to meteoblue dataset api.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/meteoblue/python-dataset-sdk",
