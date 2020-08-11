@@ -14,17 +14,27 @@ import asyncio
 import logging
 
 
+class ClientConfig(object):
+
+    def __init__(self, apikey: str):
+        self.url = {
+            'status': 'http://my.meteoblue.com/queue/status/%s',  # following queue id
+            'query': 'http://my.meteoblue.com/dataset/query?apikey=%s',  # following api key
+            'result': 'http://queueresults.meteoblue.com/%s'  # following query id
+        }
+        self.tmp_directory = './api_temp/'
+        self.apiKey = apikey
+        self.tmp_file = None
+
+
 class Client(object):
 
     def __init__(self, apikey: str):
         logging.basicConfig(filename='mbdataset.log', level=logging.INFO)
+        self._config = ClientConfig(apikey)
 
-        self._apiKey = apikey
-        self._tmp_directory = './api_temp/'
-        self._tmp_file = None
-
-        if not os.path.exists(self._tmp_directory):
-            os.makedirs(self._tmp_directory)
+        if not os.path.exists(self._config.tmp_directory):
+            os.makedirs(self._config.tmp_directory)
 
     async def _job_finished(self, queue_id: int):
         """
@@ -32,12 +42,14 @@ class Client(object):
         :param queue_id: id of queued job
         :return: json body with status information
         """
+        url = self._config.url['status'] % str(queue_id)
         while True:
-            async with self._session.get('http://my.meteoblue.com/queue/status/' + str(queue_id)) as response:
+            logging.debug('Getting url %s' % url)
+            async with self._session.get(url) as response:
                 json = await response.json()
-                if json["status"] == "finished":
+                if json['status'] == 'finished':
                     break
-            logging.info("Job status " + json['status'] + ". Sleeping for 5 seconds")
+            logging.info('Job status ' + json['status'] + '. Sleeping for 5 seconds')
             await asyncio.sleep(5)
 
     async def _submit_query(self, params: dict):
@@ -46,16 +58,20 @@ class Client(object):
         :param params: query parameters for meteoblue dataset api
         :return: json body with status information
         """
-        async with self._session.post(
-                'http://my.meteoblue.com/dataset/query?apikey=' + self._apiKey, json=params) as response:
+        url = self._config.url['query'] % self._config.apiKey
+        logging.debug('Posting data to url %s' % url)
+        async with self._session.post(url, json=params) as response:
             json = await response.json()
             if 'runOnJobQueue' in params:
                 if response.status != 200:
+                    logging.error('API returned error: %s' % response.content)
                     raise Exception("API returned error", response.content)
             else:
                 if response.status != 400:
+                    logging.error('API returned error: %s' % response.content)
                     raise Exception("API returned error", response.content)
                 if json['error_message'] != 'This job must be executed on a job-queue':
+                    logging.error('API returned error: %s' % json['error_message'])
                     raise Exception("API returned error", json['error_message'])
             return json
 
@@ -65,8 +81,10 @@ class Client(object):
         :param queue_id: id of queued job
         :return: nothing/void
         """
-        async with self._session.get('http://queueresults.meteoblue.com/' + queue_id) as response:
-            with open(self._tmp_file, 'wb+') as f:
+        url = self._config.url['result'] % queue_id
+        logging.debug('Fetching result(s) from url %s' % url)
+        async with self._session.get(url) as response:
+            with open(self._config.tmp_file, 'wb+') as f:
                 while True:
                     chunk = await response.content.read(512)
                     if not chunk:
@@ -95,13 +113,13 @@ class Client(object):
         :return: file path containing results
         """
 
-        self._tmp_file = self._tmp_directory + hashlib.sha256(repr(params).encode('utf-8')).hexdigest()
-        if os.path.isfile(self._tmp_file):
-            return self._tmp_file
+        self._config.tmp_file = self._config.tmp_directory + hashlib.sha256(repr(params).encode('utf-8')).hexdigest()
+        if os.path.isfile(self._config.tmp_file):
+            return self._config.tmp_file
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(self._query(params))
         loop.close()
 
-        return self._tmp_file
+        return self._config.tmp_file
