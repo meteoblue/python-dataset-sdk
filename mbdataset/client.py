@@ -134,10 +134,14 @@ class Client(object):
         :return: nothing/void
         """
         async with aiohttp.ClientSession() as self._session:
-            queue = await self._submit_query(params)
+            # first await function call
+            result = await self._submit_query(params)
+            # await return from function call
+            queue = await result
+
             logging.info("Waiting until job has finished")
-            await self._job_finished(queue['id'])
-            await self._fetch_result(queue['id'])
+            await self._job_finished((queue)['id'])
+            await self._fetch_result((queue)['id'])
 
     def query(self, params: dict):
         """
@@ -151,8 +155,8 @@ class Client(object):
             return self._config.tmp_file
 
         loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         loop.run_until_complete(self._query(params))
+        asyncio.set_event_loop(loop)
         loop.close()
 
         return self._config.tmp_file
