@@ -18,7 +18,7 @@ otherwise switch version with
 qparams = {'units': {'temperature': 'C', 'velocity': 'km/h', 'length': 'metric', 'energy': 'watts'}, 'geometry': {'type': 'Polygon', 'coordinates': [[[7.313768, 46.982946], [7.313768, 47.692346], [8.621369, 47.692346], [8.621369, 46.982946], [7.313768, 46.982946]]]}, 'format': 'netCDF', 'timeIntervals': ['2000-01-01T+00:00/2019-01-04T+00:00'], 'timeIntervalsAlignment': 'none', 'queries': [{'domain': 'NEMSGLOBAL', 'gapFillDomain': None, 'timeResolution': 'hourly', 'codes': [{'code': 11, 'level': '2 m above gnd'}]}]}
 import mbdataset
 mb = mbdataset.Client(apikey='XXXXXXXXXXXXXXX')  # ask for key
-mb.query(qparams)
+print(mb.query(qparams))
 ```
 
 ## Build pip package

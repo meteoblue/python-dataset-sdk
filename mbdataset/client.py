@@ -105,7 +105,7 @@ class Client(object):
                         if json['error_message'] == 'This job must be executed on a job-queue':
                             logging.info("Queueing job")
                             params["runOnJobQueue"] = True
-                            return self._submit_query(params)
+                            return await self._submit_query(params)
 
             logging.error('API returned error: %s' % response.content)
             raise Exception("API returned error", response.content)
@@ -134,14 +134,10 @@ class Client(object):
         :return: nothing/void
         """
         async with aiohttp.ClientSession() as self._session:
-            # first await function call
-            result = await self._submit_query(params)
-            # await return from function call
-            queue = await result
-
+            queue = await self._submit_query(params)
             logging.info("Waiting until job has finished")
-            await self._job_finished((queue)['id'])
-            await self._fetch_result((queue)['id'])
+            await self._job_finished(queue['id'])
+            await self._fetch_result(queue['id'])
 
     def query(self, params: dict):
         """
