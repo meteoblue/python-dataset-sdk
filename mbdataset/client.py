@@ -22,18 +22,23 @@ class ClientConfig(object):
 
         # other config
         self.apikey = apikey
-        self.tmp_directory = './api_temp/'
-        self.tmp_file = None  # set during runtime
+        self.log_file = 'mbdataset.log'
 
 
 class Client(object):
 
     def __init__(self, apikey: str):
-        logging.basicConfig(filename='mbdataset.log', level=logging.INFO)
         self._config = ClientConfig(apikey)
+        logging.basicConfig(filename=self._config.log_file, level=logging.INFO)
 
         if not os.path.exists(self._config.tmp_directory):
             os.makedirs(self._config.tmp_directory)
+
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+
+    def __del__(self):
+        self._loop.close()
 
     async def __http_get(self, url: str, retry_count=0):
         logging.debug('Getting url %s' % url)
@@ -120,12 +125,7 @@ class Client(object):
         url = self._config.result_url % queue_id
         logging.debug('Fetching result(s) from url %s' % url)
         async with self._session.get(url) as response:
-            with open(self._config.tmp_file, 'wb+') as f:
-                while True:
-                    chunk = await response.content.read(512)
-                    if not chunk:
-                        break
-                    f.write(chunk)
+            return await response.json()
 
     async def _query(self, params: dict):
         """
@@ -137,22 +137,13 @@ class Client(object):
             queue = await self._submit_query(params)
             logging.info("Waiting until job has finished")
             await self._job_finished(queue['id'])
-            await self._fetch_result(queue['id'])
+            return await self._fetch_result(queue['id'])
 
     def query(self, params: dict):
         """
         Query async dataset api interface
         :param params: query parameters for meteoblue dataset api
-        :return: file path containing results
+        :return: json result data
         """
 
-        self._config.tmp_file = self._config.tmp_directory + hashlib.sha256(repr(params).encode('utf-8')).hexdigest()
-        if os.path.isfile(self._config.tmp_file):
-            return self._config.tmp_file
-
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(self._query(params))
-        asyncio.set_event_loop(loop)
-        loop.close()
-
-        return self._config.tmp_file
+        return self._loop.run_until_complete(self._query(params))
