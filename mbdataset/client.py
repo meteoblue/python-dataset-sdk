@@ -149,6 +149,9 @@ class Client(object):
         """
 
         # this line is for testing only!!!
-        #await self._query(params)
-        return await self._query(params)
+        query1 = self._query(params)
+        query2 = self._query(params)
+        await query1
+        await query2
+
         #return self._loop.run_until_complete(self._query(params))
