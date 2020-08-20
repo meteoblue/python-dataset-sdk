@@ -121,9 +121,7 @@ class Client(object):
         # self.__http_get() could be used here, too if we solve caching differently
         url = self._config.result_url % queue_id
         logging.debug('Fetching result(s) from url %s' % url)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                return response
+        return await self.__http_get(url)
 
     async def _query(self, params: dict):
         """
