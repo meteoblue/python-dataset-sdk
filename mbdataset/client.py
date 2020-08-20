@@ -28,16 +28,22 @@ class Client(object):
         self._config = ClientConfig(apikey)
 
     async def __http_get(self, url: str, retry_count=0):
+        """
+
+        :param url: url to make http get on
+        :param retry_count: number of retries to attempt
+        :return:
+        """
         logging.debug('Getting url %s' % url)
         logging.debug('Retry count: %s' % retry_count)
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
-                json = await response.json()
+                await response.json()
 
                 # return if successful
                 if 200 <= response.status <= 299:
-                    return json
+                    return response
 
                 # retry mechanism
                 if retry_count < self._config.http_max_retry_count:
@@ -47,7 +53,7 @@ class Client(object):
                         # 408: HTTP request timeout
                         # 500-599: HTTP backend error
                         await asyncio.sleep(1)
-                        return self.__http_get(url, retry_count + 1)
+                        return await self.__http_get(url, retry_count + 1)
 
             logging.error('API returned error: %s' % response.content)
             raise Exception("API returned error", response.content)
@@ -60,7 +66,8 @@ class Client(object):
         """
         url = self._config.status_url % str(queue_id)
         while True:
-            json = await self.__http_get(url)
+            http_response = await self.__http_get(url)
+            json = await http_response.json()
             logging.debug('Job status is %s' % json['status'])
             if json['status'] == 'finished':
                 break
@@ -82,7 +89,7 @@ class Client(object):
                 json = await response.json()
 
                 if 200 <= response.status <= 299:
-                    return json
+                    return response
 
                 # retry mechanism
                 if retry_count < self._config.http_max_retry_count:
@@ -92,7 +99,7 @@ class Client(object):
                         # 408: HTTP request timeout
                         # 500-599: HTTP backend error
                         await asyncio.sleep(1)
-                        return self._submit_query(params, retry_count + 1)
+                        return await self._submit_query(params, retry_count + 1)
 
                     # check if request needs to be executed on job queue
                     if 400 <= response.status <= 499:
@@ -116,47 +123,77 @@ class Client(object):
         logging.debug('Fetching result(s) from url %s' % url)
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
-                return await response.json()
+                return response
 
     async def _query(self, params: dict):
         """
         Call async functions
         :param params: query parameters for meteoblue dataset api
-        :return: nothing/void
+        :return: ClientResponse object from aiohttp lib
         """
-        queue = await self._submit_query(params)
-        logging.info("%s: Waiting until job has finished" % str(queue['id']))
-        await self._job_finished(queue['id'])
-        return await self._fetch_result(queue['id'])
+        submit_response = await self._submit_query(params)
+        submit_response_json = await submit_response.json()
 
-    async def query(self, params: dict):
-        """
-        Query async dataset api interface
-        :param params: query parameters for meteoblue dataset api
-        :return: json result data
-        """
+        # if there is no id, request doesn't have to be queued
+        # this must be the final result
+        if 'id' not in submit_response_json:
+            return submit_response
 
-        # this line is for testing only!!!
+        # watch queue
+        queue_id = submit_response_json['id']
+        logging.info("%s: Waiting until job has finished" % queue_id)
+        await self._job_finished(queue_id)
+
+        return await self._fetch_result(queue_id)
+
+    def query(self, params: dict):
+        """
+        Query meteoblue dataset api synchronously for sequential usage
+        :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
+        :return: ClientResponse object from aiohttp lib
+        """
+        return self.query_seq(params)
+
+    def query_seq(self, params: dict):
+        """
+        Query meteoblue dataset api synchronously for sequential usage
+        :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
+        :return: ClientResponse object from aiohttp lib
+        """
+        return asyncio.run(self._query(params))
+
+    async def query_parallel(self, params: dict):
+        """
+        Query meteoblue dataset api asynchronously, run multiple queries in parallel
+        :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
+        :return: ClientResponse object from aiohttp lib
+        """
         return await self._query(params)
 
+
 async def main():
-    qparams = {'units': {'temperature': 'C', 'velocity': 'km/h', 'length': 'metric', 'energy': 'watts'}, 'geometry': {'type': 'Polygon', 'coordinates': [[[7.313768, 46.982946], [7.313768, 47.692346], [8.621369, 47.692346], [8.621369, 46.982946], [7.313768, 46.982946]]]}, 'format': 'json', 'timeIntervals': ['2000-01-01T+00:00/2019-01-04T+00:00'], 'timeIntervalsAlignment': 'none', 'queries': [{'domain': 'NEMSGLOBAL', 'gapFillDomain': None, 'timeResolution': 'hourly', 'codes': [{'code': 11, 'level': '2 m above gnd'}]}]}
+    qparams = {'units': {'temperature': 'C', 'velocity': 'km/h', 'length': 'metric', 'energy': 'watts'},
+               'geometry': {'type': 'Polygon', 'coordinates': [
+                   [[7.313768, 46.982946], [7.313768, 47.692346], [8.621369, 47.692346], [8.621369, 46.982946],
+                    [7.313768, 46.982946]]]}, 'format': 'json',
+               'timeIntervals': ['2000-01-01T+00:00/2019-01-04T+00:00'], 'timeIntervalsAlignment': 'none', 'queries': [
+            {'domain': 'NEMSGLOBAL', 'gapFillDomain': None, 'timeResolution': 'hourly',
+             'codes': [{'code': 11, 'level': '2 m above gnd'}]}]}
     # import mbdataset
     mb = Client(apikey='xxxxxxx')  # ask for key
     query1 = asyncio.create_task(mb.query(qparams))
     query2 = asyncio.create_task(mb.query(qparams))
     res1 = await query1
     res2 = await query2
-    #print(res1)
-    #print(res2)
+    # print(res1)
+    # print(res2)
+
 
 if __name__ == "__main__":
     logging.basicConfig(
-        #filename=self._config.log_file,
+        # filename=self._config.log_file,
         format='%(asctime)s %(levelname)-8s %(message)s',
         level=logging.DEBUG,
         datefmt='%Y-%m-%d %H:%M:%S')
 
     asyncio.run(main())
-
-

@@ -15,7 +15,8 @@ otherwise switch version with
 
 ### Query some data
 ```
-qparams = {'units': {'temperature': 'C', 'velocity': 'km/h', 'length': 'metric', 'energy': 'watts'}, 'geometry': {'type': 'Polygon', 'coordinates': [[[7.313768, 46.982946], [7.313768, 47.692346], [8.621369, 47.692346], [8.621369, 46.982946], [7.313768, 46.982946]]]}, 'format': 'json', 'timeIntervals': ['2000-01-01T+00:00/2019-01-04T+00:00'], 'timeIntervalsAlignment': 'none', 'queries': [{'domain': 'NEMSGLOBAL', 'gapFillDomain': None, 'timeResolution': 'hourly', 'codes': [{'code': 11, 'level': '2 m above gnd'}]}]}
+qparams = {'units': {'temperature': 'C', 'velocity': 'km/h', 'length': 'metric', 'energy': 'watts'}, 'geometry': {'type': 'Polygon', 'coordinates': [[[7.313768, 46.982946], [7.313768, 47.692346], [8.621369, 47.692346], [8.621369, 46.982946], [7.313768, 46.982946]]]}, 'format': 'json', 'timeIntervals': ['2000-01-01T+00:00/2019-01-04T+00:00'], 'timeIntervalsAlignment': 'none', 'queries': [{'domain': 'NEMSGLOBAL', 'gapFillDomain': None, 'timeResolution': 'hourly', 'codes': [{'code': 11, 'level': '2 m above gnd'}]}]}  # use queue
+qparams = {"units":{"temperature":"C","velocity":"km/h","length":"metric","energy":"watts"},"geometry":{"type":"MultiPoint","coordinates":[[7.57327,47.558399,279]],"locationNames":["Basel"]},"format":"json","timeIntervals":["2019-01-01T+00:00/2019-01-01T+00:00"],"timeIntervalsAlignment":"none","queries":[{"domain":"NEMSGLOBAL","gapFillDomain":null,"timeResolution":"hourly","codes":[{"code":157,"level":"180-0 mb above gnd"}]}]}  # not use queue
 import mbdataset
 mb = mbdataset.Client(apikey='XXXXXXXXXXXXXXX')  # ask for key
 print(mb.query(qparams))
