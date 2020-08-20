@@ -20,24 +20,12 @@ class ClientConfig(object):
 
         # other config
         self.apikey = apikey
-        self.log_file = 'mbdataset.log'
 
 
 class Client(object):
 
     def __init__(self, apikey: str):
         self._config = ClientConfig(apikey)
-        logging.basicConfig(
-            filename=self._config.log_file,
-            format='%(asctime)s %(levelname)-8s %(message)s',
-            level=logging.DEBUG,
-            datefmt='%Y-%m-%d %H:%M:%S')
-
-        self._loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self._loop)
-
-    def __del__(self):
-        self._loop.close()
 
     async def __http_get(self, url: str, retry_count=0):
         logging.debug('Getting url %s' % url)
@@ -149,9 +137,26 @@ class Client(object):
         """
 
         # this line is for testing only!!!
-        query1 = self._query(params)
-        query2 = self._query(params)
-        await query1
-        await query2
+        return await self._query(params)
 
-        #return self._loop.run_until_complete(self._query(params))
+async def main():
+    qparams = {'units': {'temperature': 'C', 'velocity': 'km/h', 'length': 'metric', 'energy': 'watts'}, 'geometry': {'type': 'Polygon', 'coordinates': [[[7.313768, 46.982946], [7.313768, 47.692346], [8.621369, 47.692346], [8.621369, 46.982946], [7.313768, 46.982946]]]}, 'format': 'json', 'timeIntervals': ['2000-01-01T+00:00/2019-01-04T+00:00'], 'timeIntervalsAlignment': 'none', 'queries': [{'domain': 'NEMSGLOBAL', 'gapFillDomain': None, 'timeResolution': 'hourly', 'codes': [{'code': 11, 'level': '2 m above gnd'}]}]}
+    # import mbdataset
+    mb = Client(apikey='xxxxxxx')  # ask for key
+    query1 = asyncio.create_task(mb.query(qparams))
+    query2 = asyncio.create_task(mb.query(qparams))
+    res1 = await query1
+    res2 = await query2
+    #print(res1)
+    #print(res2)
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        #filename=self._config.log_file,
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        level=logging.DEBUG,
+        datefmt='%Y-%m-%d %H:%M:%S')
+
+    asyncio.run(main())
+
+
