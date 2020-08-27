@@ -5,7 +5,7 @@ meteoblue dataset client
 import aiohttp
 import asyncio
 import logging
-from contextlib import asynccontextmanager 
+from contextlib import asynccontextmanager
 
 
 class ClientConfig(object):
@@ -27,6 +27,7 @@ class Error(Exception):
     """Base class for exceptions in this module."""
     pass
 
+
 class ApiError(Error):
     """Exception raised for errors in the input.
 
@@ -37,13 +38,14 @@ class ApiError(Error):
     def __init__(self, message):
         self.message = message
 
+
 class Client(object):
 
     def __init__(self, apikey: str):
         self._config = ClientConfig(apikey)
 
     @asynccontextmanager
-    async def _fetch(self, session: aiohttp.ClientSession, method: str, url: str, retryCount=0, json: any=None):
+    async def _fetch(self, session: aiohttp.ClientSession, method: str, url: str, retryCount=0, json: any = None):
         """
         Fetch data from an URL and try for error 5xx or timeouts.
         Codes other than 2xx will throw an exception.
@@ -53,7 +55,7 @@ class Client(object):
         :return:
         """
         logging.debug('Getting url %s %s' % (method, url))
-        
+
         async with session.request(method, url, json=json) as response:
             # return if successful
             if 200 <= response.status <= 299:
@@ -69,15 +71,17 @@ class Client(object):
                 await asyncio.sleep(1)
                 async with self._fetch(session, method, url, retryCount + 1) as response:
                     yield response
-                    return 
+                    return
 
             # meteoblue APIs return a JSON encoded error message
             if response.status == 400:
                 json = await response.json()
-                logging.debug("API returned error message: %s" % json["error_message"])
+                logging.debug("API returned error message: %s" %
+                              json["error_message"])
                 raise ApiError(json["error_message"])
 
-            logging.error('API returned unexpected error: %s' % response.content)
+            logging.error('API returned unexpected error: %s' %
+                          response.content)
             raise Exception("API returned unexpected error", response.content)
 
     @asynccontextmanager
@@ -111,7 +115,8 @@ class Client(object):
                 raise ApiError("Job was canceled")
             if status == 'error':
                 raise ApiError(json["error_message"])
-            logging.info('Waiting 5 seconds for job to complete. Status: %s, job id %s' % (status, jobId))
+            logging.info(
+                'Waiting 5 seconds for job to complete. Status: %s, job id %s' % (status, jobId))
             await asyncio.sleep(5)
 
         # Fetch the job queue result
@@ -148,18 +153,21 @@ class Client(object):
         :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: ClientResponse object from aiohttp lib
         """
-        #return asyncio.run(self._query(params))
+        # return asyncio.run(self._query(params))
+
 
 async def main():
-    query1 = {"units":{"temperature":"C","velocity":"km/h","length":"metric","energy":"watts"},"geometry":{"type":"Polygon","coordinates":[[[2.96894,46.041886],[2.96894,48.216537],[10.989692,48.216537],[10.989692,46.041886],[2.96894,46.041886]]]},"format":"json","timeIntervals":["2017-01-01T+00:00/2019-01-31T+00:00"],"timeIntervalsAlignment":"none","queries":[{"domain":"NEMSGLOBAL","gapFillDomain":None,"timeResolution":"hourly","codes":[{"code":11,"level":"2 m above gnd"}],"transformations":[{"type":"aggregateTimeInterval","aggregation":"mean"},{"type":"spatialTotalAggregate","aggregation":"mean"}]}]}
+    query1 = {"units": {"temperature": "C", "velocity": "km/h", "length": "metric", "energy": "watts"}, "geometry": {"type": "Polygon", "coordinates": [[[2.96894, 46.041886], [2.96894, 48.216537], [10.989692, 48.216537], [10.989692, 46.041886], [2.96894, 46.041886]]]}, "format": "json", "timeIntervals": [
+        "2017-01-01T+00:00/2019-01-31T+00:00"], "timeIntervalsAlignment": "none", "queries": [{"domain": "NEMSGLOBAL", "gapFillDomain": None, "timeResolution": "hourly", "codes": [{"code": 11, "level": "2 m above gnd"}], "transformations": [{"type": "aggregateTimeInterval", "aggregation": "mean"}, {"type": "spatialTotalAggregate", "aggregation": "mean"}]}]}
 
-    query2 = {"units":{"temperature":"C","velocity":"km/h","length":"metric","energy":"watts"},"geometry":{"type":"MultiPoint","coordinates":[[7.57327,47.558399,279]],"locationNames":["Basel"]},"format":"json","timeIntervals":["2019-01-01T+00:00/2019-01-01T+00:00"],"timeIntervalsAlignment":"none","queries":[{"domain":"NEMSGLOBAL","gapFillDomain":None,"timeResolution":"hourly","codes":[{"code":11,"level":"2 m above gnd"}]}]}
+    query2 = {"units": {"temperature": "C", "velocity": "km/h", "length": "metric", "energy": "watts"}, "geometry": {"type": "MultiPoint", "coordinates": [[7.57327, 47.558399, 279]], "locationNames": ["Basel"]}, "format": "json", "timeIntervals": [
+        "2019-01-01T+00:00/2019-01-01T+00:00"], "timeIntervalsAlignment": "none", "queries": [{"domain": "NEMSGLOBAL", "gapFillDomain": None, "timeResolution": "hourly", "codes": [{"code": 11, "level": "2 m above gnd"}]}]}
     # import mbdataset
-    mb = Client(apikey='INmI2eX1Ta1YYE')  # ask for key
+    mb = Client(apikey='xxxxx')  # ask for key
     #query1 = asyncio.create_task(mb.query_async(qparams))
     #query2 = asyncio.create_task(mb.query_async(qparams))
-    #res1 = await query1
-    #res2 = await query2
+    # res1 = await query1
+    # res2 = await query2
     async with mb.query(query1) as response:
         json = await response.json()
         print(json)
