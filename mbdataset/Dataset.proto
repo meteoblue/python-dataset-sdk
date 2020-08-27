@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+message DatasetApiProtobuf {
+  // contains one entry per reader
+  repeated PerReader perGeometry = 1;
+
+  message PerReader {
+    string domain = 1;
+    // geometry lists the selected grid-points as GeoJSON. The coordinates point
+    // to grid points with elevation and not the requested coordinates. Basel is
+    // actually at 47.56°N/7.57°E with an elevation of 279 meters, but the output
+    // shows 47.67°N/7.5°E at 499.78 meters. The grid point has been selected by
+    // a nearest neighbor match. The order of arrays is strictly preserved! The
+    // first requested location will also be the first returned grid-cell.
+    Geometry geometry = 2;
+    string timeResolution = 3;
+    // timeIntervals list multiple time-intervals if requested. In this example
+    // only one time-interval is present stating on 20200101T0000. With an
+    // hourly timeResolution.
+    repeated TimeInterval timeIntervals = 4;
+    // codes will now contain an array of structures for each requested weather
+    // variable code e.g. temperature or precipitation.
+    repeated PerCode codes = 5;
+  }
+
+  message Geometry {
+    // always "MultiPoint"
+    string type = 1;
+    repeated Coordinate coordinates = 2;
+    repeated string locationNames = 3;
+  }
+
+  message Coordinate {
+    float lat = 1;
+    float lon = 2;
+    float asl = 3;
+  }
+
+  message TimeInterval {
+    repeated string times = 1;
+  }
+
+  message PerCode {
+    // code is the numeric identifier for a weather variable. E.g. 11 for
+    // temperature.
+    int64 code = 1;
+    // level indicates the height or elevation for this variable. 2 m above gnd
+    // is common for temperature.
+    string level = 2;
+    string variable = 3;
+    // unit is the returned unit for this weather variable after unit
+    // conversions or transformations.
+    string unit = 4;
+    // aggregation shows min/max/mean in case of temporal aggregations are used.
+    // The aggregation for spatial transformations is not shown here.
+    string aggregation = 5;
+    // dataPerTimeInterval is now an array with a structure for each
+    // time-interval. Has the same number of elements as timeIntervals above.
+    repeated PerTime dataPerTimeIntervals = 6;
+    float gddBase = 7;
+    float gddLimit = 8;
+    float slope = 9;
+    float facing = 10;
+    float pvPeak = 11;
+    int64 startDepth = 12;
+    int64 endDepth = 13;
+  }
+
+  message PerTime {
+    // gapFillRatio is the fraction from 0-1 of how much data was gap-filled with
+    // another dataset in case gap-fill is active.
+    float gapFillRatio = 1;
+    // data is a 2 dimensional array. The first dimension is used for the number
+    // of grid-cells (2 in this case). The second dimension is used for the
+    // number of time-steps. The data array can be huge!
+    repeated float data = 2;
+  }
+
+}

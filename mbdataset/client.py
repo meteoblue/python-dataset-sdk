@@ -6,14 +6,16 @@ import aiohttp
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+import Dataset_pb2
 
 
 class ClientConfig(object):
 
     def __init__(self, apikey: str):
         # urls
-        self.statusUrl = 'http://my.meteoblue.com/queue/status/%s'  # following queue id
-        self.queryUrl = 'http://my.meteoblue.com/dataset/query?apikey=%s'  # following api key
+        self.statusUrl = 'http://mystaging.meteoblue.com/queue/status/%s'  # following queue id
+        # following api key
+        self.queryUrl = 'http://mystaging.meteoblue.com/dataset/query?apikey=%s'
         self.resultUrl = 'http://queueresults.meteoblue.com/%s'  # following query id
 
         # http
@@ -147,6 +149,21 @@ class Client(object):
                 async with self._runOnJobQueue(session, params) as response:
                     yield response
 
+    async def asProtobuf(self, params: dict):
+        """
+        Query meteoblue dataset api asynchronously, and expect the result to be a meteoblue dataset api protobuf
+        :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
+        :return: ClientResponse object from aiohttp lib
+        """
+
+        params['format'] = 'protobuf'
+
+        async with self.query(params) as response:
+            data = await response.read()
+            msg = Dataset_pb2.DatasetApiProtobuf()
+            msg.ParseFromString(data)
+            return msg
+
     def query_seq(self, params: dict):
         """
         Query meteoblue dataset api synchronously for sequential usage
@@ -164,13 +181,15 @@ async def main():
         "2019-01-01T+00:00/2019-01-01T+00:00"], "timeIntervalsAlignment": "none", "queries": [{"domain": "NEMSGLOBAL", "gapFillDomain": None, "timeResolution": "hourly", "codes": [{"code": 11, "level": "2 m above gnd"}]}]}
     # import mbdataset
     mb = Client(apikey='xxxxx')  # ask for key
+    a = await mb.asProtobuf(query2)
+    logging.debug(a)
     #query1 = asyncio.create_task(mb.query_async(qparams))
     #query2 = asyncio.create_task(mb.query_async(qparams))
     # res1 = await query1
     # res2 = await query2
-    async with mb.query(query1) as response:
-        json = await response.json()
-        print(json)
+    # async with mb.query(query1) as response:
+    #    json = await response.json()
+    #    print(json)
     # print(res1)
     # print(res2)
 

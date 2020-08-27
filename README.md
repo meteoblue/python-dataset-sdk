@@ -22,6 +22,13 @@ mb = mbdataset.Client(apikey='XXXXXXXXXXXXXXX')  # ask for key
 print(mb.query(qparams))
 ```
 
+## Developer setup
+```bash
+python3 -m venv env
+source env/bin/activate
+pip3 install -r requirements.txt
+```
+
 ## Build pip package
 
 ### One time config
