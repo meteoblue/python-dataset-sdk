@@ -128,7 +128,7 @@ class Client(object):
             yield response
 
     @asynccontextmanager
-    async def query(self, params: dict):
+    async def queryRaw(self, params: dict):
         """
         Query meteoblue dataset api asynchronously, run multiple queries in parallel
         :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
@@ -149,28 +149,28 @@ class Client(object):
                 async with self._runOnJobQueue(session, params) as response:
                     yield response
 
-    async def asProtobuf(self, params: dict):
+    async def query(self, params: dict):
         """
-        Query meteoblue dataset api asynchronously, and expect the result to be a meteoblue dataset api protobuf
+        Query meteoblue dataset api asynchronously, transfer data using protobuf and return a structured object
         :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
-        :return: ClientResponse object from aiohttp lib
+        :return: Dataset_pb2.DatasetApiProtobuf object
         """
 
         params['format'] = 'protobuf'
 
-        async with self.query(params) as response:
+        async with self.queryRaw(params) as response:
             data = await response.read()
             msg = Dataset_pb2.DatasetApiProtobuf()
             msg.ParseFromString(data)
             return msg
 
-    def query_seq(self, params: dict):
+    def querySequential(self, params: dict):
         """
         Query meteoblue dataset api synchronously for sequential usage
         :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: ClientResponse object from aiohttp lib
         """
-        # return asyncio.run(self._query(params))
+        # return asyncio.run(self.query(params))
 
 
 async def main():
@@ -181,8 +181,11 @@ async def main():
         "2019-01-01T+00:00/2019-01-01T+00:00"], "timeIntervalsAlignment": "none", "queries": [{"domain": "NEMSGLOBAL", "gapFillDomain": None, "timeResolution": "hourly", "codes": [{"code": 11, "level": "2 m above gnd"}]}]}
     # import mbdataset
     mb = Client(apikey='xxxxx')  # ask for key
-    a = await mb.asProtobuf(query2)
-    logging.debug(a)
+    a = await mb.query(query2)
+    timesteps = a.perGeometry[0].timeIntervals[0].times
+    logging.debug(timesteps)
+    data = a.perGeometry[0].codes[0].dataPerTimeIntervals[0].data
+    logging.debug(data)
     #query1 = asyncio.create_task(mb.query_async(qparams))
     #query2 = asyncio.create_task(mb.query_async(qparams))
     # res1 = await query1
