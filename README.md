@@ -1,6 +1,10 @@
 # meteoblue Python Dataset SDK
 
-This library simplifies access to the [meteoblue dataset API](https://docs.meteoblue.com/en/apis/environmental-data/dataset-api)
+[![PyPI version](https://badge.fury.io/py/meteoblue-dataset-sdk.svg)](https://badge.fury.io/py/meteoblue-dataset-sdk)
+
+This library simplifies access to the [meteoblue dataset API](https://docs.meteoblue.com/en/apis/environmental-data/dataset-api).
+
+In order to use this library you need a meteoblue API key.
 
 Features:
 - Fetch any dataset from the meteoblue environmental data archive
@@ -12,7 +16,7 @@ Features:
 
 ## Installation
 - Ensure that you are using at least Python 3.7 with `python --version` 
-- Install the module with `pip3 install 'mbdataset>=1.0.0,<2'`
+- Install the module with `pip3 install 'meteoblue-dataset-sdk>=1.0.0,<2'`
 
 This module will also install the following dependencies automatically:
 - aiohttp >=3.6,<4
@@ -120,31 +124,3 @@ python3 -m venv env
 source env/bin/activate
 pip3 install -r requirements.txt
 ```
-
-## Build pip package
-
-### One time config
-```python -V  # for python version (2/3)
-python -m pip --version
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install tqdm
-python -m pip install --user --upgrade twine
-```
-```
-cat <<EOF > ~/.pypirc
-[distutils] 
-index-servers=pypi
-[pypi] 
-repository = https://upload.pypi.org/legacy/ 
-username = meteoblue
-EOF
-```
-
-### Update metadata in setup.py
-See [setup.py](setup.py).
-
-### Compile
-`python3 setup.py sdist bdist_wheel`
-
-### Upload
-`python3 -m twine upload --skip-existing dist/* --non-interactive -p XXXXXXXXXXXXXXXXXXXX`
