@@ -23,28 +23,49 @@ This module will also install the following dependencies automatically:
 - protobuf >=3.0,<4
 
 ## Usage
+See [main.py](./main.py) for a working example. To generate the query JSON it is highly recommended to use the [dataset API web interfaces](https://docs.meteoblue.com/en/apis/environmental-data/web-interfaces)
+
 ```python
 import meteoblue_dataset_sdk
 
-async def myFunction():
-    # Query 1 year of hourly temperature for Basel from meteoblue NEMSGLOBAL
-    query = {"geometry": {"type": "MultiPoint", "coordinates": [[7.57327, 47.558399, 279]], "locationNames": ["Basel"]}, "format": "json", "timeIntervals": [
-            "2019-01-01T+00:00/2019-01-01T+00:00"], "queries": [{"domain": "NEMSGLOBAL", "timeResolution": "hourly", "codes": [{"code": 11, "level": "2 m above gnd"}]}]}
+query = {
+    "units": {
+        "temperature": "C",
+        "velocity": "km/h",
+        "length": "metric",
+        "energy": "watts",
+    },
+    "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [[7.57327, 47.558399, 279]],
+        "locationNames": ["Basel"],
+    },
+    "format": "json",
+    "timeIntervals": ["2019-01-01T+00:00/2019-01-01T+00:00"],
+    "timeIntervalsAlignment": "none",
+    "queries": [
+        {
+            "domain": "NEMSGLOBAL",
+            "gapFillDomain": None,
+            "timeResolution": "hourly",
+            "codes": [{"code": 11, "level": "2 m above gnd"}],
+        }
+    ],
+}
+client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")  # ask for key
+result = await client.query(query)
+# result is a structured object containing timestamps and data
 
-    client = mbdataset.Client(apikey='XXXXXXXXXXXXXXX')
-    result = await client.query(query)
-    # result is a structured object containing timestamps and data
+timestamps = result.geometries[0].timeIntervals[0].timestamps
+data = result.geometries[0].codes[0].timeIntervals[0].data
 
-    timestamps = result.geometries[0].timeIntervals[0].timestamps
-    data = result.geometries[0].codes[0].timeIntervals[0].data
-
-    print(timestamps)
-    # [1546300800, 1546304400, 1546308000, 1546311600, 1546315200, ...
-    print(data)
-    # [2.89, 2.69, 2.549999, 2.3800001,
+print(timestamps)
+# [1546300800, 1546304400, 1546308000, 1546311600, 1546315200, ...
+print(data)
+# [2.89, 2.69, 2.549999, 2.3800001,
 ```
 
-More detailed output:
+More detailed output of the `result` object. The output is defined as [this protobuf structure](./meteoblue_dataset_sdk/Dataset.proto).
 
 ```
 geometries {
