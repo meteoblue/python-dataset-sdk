@@ -72,7 +72,7 @@ print(data)
 # [2.89, 2.69, 2.549999, 2.3800001,
 ```
 
-If your code is using `async/await`, you should use `await client.query()` instead of `client.querySync()`. Asynchronous IO is essential for modern webserver frameworks like flask of fastapi.
+If your code is using `async/await`, you should use `await client.query()` instead of `client.querySync()`. Asynchronous IO is essential for modern webserver frameworks like Flask or FastAPI.
 
 ```python
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
