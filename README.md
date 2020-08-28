@@ -12,7 +12,7 @@ Features:
 
 ## Installation
 - Ensure that you are using at least Python 3.7 with `python --version` 
-- Install the module with `pip3 install mbdataset`
+- Install the module with `pip3 install 'mbdataset>=1.0.0,<2'`
 
 This module will also install the following dependencies automatically:
 - aiohttp >=3.6,<4
