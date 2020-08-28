@@ -6,7 +6,8 @@ import aiohttp
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-import Dataset_pb2
+from .Dataset_pb2 import Dataset_pb2
+# import Dataset_pb2
 
 
 class ClientConfig(object):

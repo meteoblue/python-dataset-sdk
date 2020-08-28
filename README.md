@@ -16,7 +16,7 @@ Features:
 
 ## Installation
 - Ensure that you are using at least Python 3.7 with `python --version` 
-- Install the module with `pip3 install 'meteoblue-dataset-sdk>=1.0.0,<2'`
+- Install the module with `pip3 install 'meteoblue_dataset_sdk>=1.0.0,<2'`
 
 This module will also install the following dependencies automatically:
 - aiohttp >=3.6,<4
@@ -24,7 +24,7 @@ This module will also install the following dependencies automatically:
 
 ## Usage
 ```python
-import mbdataset
+import meteoblue_dataset_sdk
 
 async def myFunction():
     # Query 1 year of hourly temperature for Basel from meteoblue NEMSGLOBAL
