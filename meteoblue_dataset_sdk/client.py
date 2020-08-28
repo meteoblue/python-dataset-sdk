@@ -10,13 +10,12 @@ from .Dataset_pb2 import DatasetApiProtobuf
 
 
 class ClientConfig(object):
-
     def __init__(self, apikey: str):
         # urls
-        self.statusUrl = 'http://my.meteoblue.com/queue/status/%s'  # following job id
+        self.statusUrl = "http://my.meteoblue.com/queue/status/%s"  # following job id
         # following api key
-        self.queryUrl = 'http://my.meteoblue.com/dataset/query?apikey=%s'
-        self.resultUrl = 'http://queueresults.meteoblue.com/%s'  # following job id
+        self.queryUrl = "http://my.meteoblue.com/dataset/query?apikey=%s"
+        self.resultUrl = "http://queueresults.meteoblue.com/%s"  # following job id
 
         # http
         self.httpMaxRetryCount = 5
@@ -30,6 +29,7 @@ class ClientConfig(object):
 
 class Error(Exception):
     """Base class for exceptions in this module."""
+
     pass
 
 
@@ -45,12 +45,18 @@ class ApiError(Error):
 
 
 class Client(object):
-
     def __init__(self, apikey: str):
         self._config = ClientConfig(apikey)
 
     @asynccontextmanager
-    async def _fetch(self, session: aiohttp.ClientSession, method: str, url: str, retryCount=0, json: any = None):
+    async def _fetch(
+        self,
+        session: aiohttp.ClientSession,
+        method: str,
+        url: str,
+        retryCount=0,
+        json: any = None,
+    ):
         """
         Fetch data from an URL and try for error 5xx or timeouts.
         Codes other than 2xx will throw an exception.
@@ -59,7 +65,7 @@ class Client(object):
         :param retryCount: number of retries to attempt
         :return:
         """
-        logging.debug('Getting url %s %s' % (method, url))
+        logging.debug("Getting url %s %s" % (method, url))
 
         for retry in range(self._config.httpMaxRetryCount):
             async with session.request(method, url, json=json) as response:
@@ -71,15 +77,16 @@ class Client(object):
                 # meteoblue APIs return a JSON encoded error message
                 if response.status == 400 or response.status == 500:
                     json = await response.json()
-                    logging.debug("API returned error message: %s" %
-                                  json["error_message"])
+                    logging.debug(
+                        "API returned error message: %s" % json["error_message"]
+                    )
                     raise ApiError(json["error_message"])
 
                 if retry == self._config.httpMaxRetryCount - 1:
-                    logging.error('API returned unexpected error: %s' %
-                                  response.content)
-                    raise Exception(
-                        "API returned unexpected error", response.content)
+                    logging.error(
+                        "API returned unexpected error: %s" % response.content
+                    )
+                    raise Exception("API returned unexpected error", response.content)
 
                 # retry mechanism
                 # check if request timed out or backend threw an error
@@ -104,27 +111,29 @@ class Client(object):
             responseJson = await response.json()
 
         # Wait until the job is finished
-        jobId = responseJson['id']
+        jobId = responseJson["id"]
         logging.info("Waiting until job has finished (job id %s)" % jobId)
         statusUrl = self._config.statusUrl % str(jobId)
         while True:
             async with self._fetch(session, "GET", statusUrl) as response:
                 json = await response.json()
-            status = json['status']
-            logging.debug('Job status is %s' % status)
-            if status == 'finished':
+            status = json["status"]
+            logging.debug("Job status is %s" % status)
+            if status == "finished":
                 break
-            if status == 'deleted':
+            if status == "deleted":
                 raise ApiError("Job was canceled")
-            if status == 'error':
+            if status == "error":
                 raise ApiError(json["error_message"])
             logging.info(
-                'Waiting 5 seconds for job to complete. Status: %s, job id %s' % (status, jobId))
+                "Waiting 5 seconds for job to complete. Status: %s, job id %s"
+                % (status, jobId)
+            )
             await asyncio.sleep(self._config.queueRetrySleepDuration)
 
         # Fetch the job queue result
         resultUrl = self._config.resultUrl % jobId
-        logging.debug('Fetching result for job id %s' % jobId)
+        logging.debug("Fetching result for job id %s" % jobId)
         async with self._fetch(session, "GET", resultUrl) as response:
             yield response
 
@@ -157,7 +166,7 @@ class Client(object):
         :return: DatasetApiProtobuf object
         """
 
-        params['format'] = 'protobuf'
+        params["format"] = "protobuf"
 
         async with self.queryRaw(params) as response:
             data = await response.read()
