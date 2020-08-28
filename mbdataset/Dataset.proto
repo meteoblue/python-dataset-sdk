@@ -2,45 +2,35 @@ syntax = "proto3";
 
 message DatasetApiProtobuf {
   // contains one entry per reader
-  repeated PerReader perGeometry = 1;
+  repeated Geometry geometries = 1;
 
-  message PerReader {
+  message Geometry {
     string domain = 1;
-    // geometry lists the selected grid-points as GeoJSON. The coordinates point
-    // to grid points with elevation and not the requested coordinates. Basel is
-    // actually at 47.56°N/7.57°E with an elevation of 279 meters, but the output
-    // shows 47.67°N/7.5°E at 499.78 meters. The grid point has been selected by
-    // a nearest neighbor match. The order of arrays is strictly preserved! The
-    // first requested location will also be the first returned grid-cell.
-    Geometry geometry = 2;
-    string timeResolution = 3;
+    // The coordinate points (latitudes)
+    repeated float lats = 2;
+    // The coordinate points (longitudes)
+    repeated float lons = 3;
+    // The coordinate points (elevations)
+    repeated float asls = 4;
+    repeated string locationNames = 5;
+    sint64 nx = 6;
+    sint64 ny = 7;
+    string timeResolution = 8;
     // timeIntervals list multiple time-intervals if requested. In this example
     // only one time-interval is present stating on 20200101T0000. With an
     // hourly timeResolution.
-    repeated TimeInterval timeIntervals = 4;
+    repeated TimeInterval timeIntervals = 9;
     // codes will now contain an array of structures for each requested weather
     // variable code e.g. temperature or precipitation.
-    repeated PerCode codes = 5;
-  }
-
-  message Geometry {
-    // always "MultiPoint"
-    string type = 1;
-    repeated Coordinate coordinates = 2;
-    repeated string locationNames = 3;
-  }
-
-  message Coordinate {
-    float lat = 1;
-    float lon = 2;
-    float asl = 3;
+    repeated Code codes = 10;
   }
 
   message TimeInterval {
-    repeated string times = 1;
+    repeated string timestrings = 1;
+    repeated sint64 timestamps = 2;
   }
 
-  message PerCode {
+  message Code {
     // code is the numeric identifier for a weather variable. E.g. 11 for
     // temperature.
     int64 code = 1;
@@ -56,7 +46,7 @@ message DatasetApiProtobuf {
     string aggregation = 5;
     // dataPerTimeInterval is now an array with a structure for each
     // time-interval. Has the same number of elements as timeIntervals above.
-    repeated PerTime dataPerTimeIntervals = 6;
+    repeated Time timeIntervals = 6;
     float gddBase = 7;
     float gddLimit = 8;
     float slope = 9;
@@ -66,7 +56,7 @@ message DatasetApiProtobuf {
     int64 endDepth = 13;
   }
 
-  message PerTime {
+  message Time {
     // gapFillRatio is the fraction from 0-1 of how much data was gap-filled with
     // another dataset in case gap-fill is active.
     float gapFillRatio = 1;
