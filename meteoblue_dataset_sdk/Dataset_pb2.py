@@ -11,334 +11,330 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-
-
 DESCRIPTOR = _descriptor.FileDescriptor(
-  name='Dataset.proto',
-  package='',
-  syntax='proto3',
-  serialized_options=None,
-  create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rDataset.proto\"\x9f\x05\n\x12\x44\x61tasetApiProtobuf\x12\x30\n\ngeometries\x18\x01 \x03(\x0b\x32\x1c.DatasetApiProtobuf.Geometry\x1a\xed\x01\n\x08Geometry\x12\x0e\n\x06\x64omain\x18\x01 \x01(\t\x12\x0c\n\x04lats\x18\x02 \x03(\x02\x12\x0c\n\x04lons\x18\x03 \x03(\x02\x12\x0c\n\x04\x61sls\x18\x04 \x03(\x02\x12\x15\n\rlocationNames\x18\x05 \x03(\t\x12\n\n\x02nx\x18\x06 \x01(\x12\x12\n\n\x02ny\x18\x07 \x01(\x12\x12\x16\n\x0etimeResolution\x18\x08 \x01(\t\x12\x37\n\rtimeIntervals\x18\t \x03(\x0b\x32 .DatasetApiProtobuf.TimeInterval\x12\'\n\x05\x63odes\x18\n \x03(\x0b\x32\x18.DatasetApiProtobuf.Code\x1a\x37\n\x0cTimeInterval\x12\x13\n\x0btimestrings\x18\x01 \x03(\t\x12\x12\n\ntimestamps\x18\x02 \x03(\x12\x1a\x81\x02\n\x04\x43ode\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x03\x12\r\n\x05level\x18\x02 \x01(\t\x12\x10\n\x08variable\x18\x03 \x01(\t\x12\x0c\n\x04unit\x18\x04 \x01(\t\x12\x13\n\x0b\x61ggregation\x18\x05 \x01(\t\x12/\n\rtimeIntervals\x18\x06 \x03(\x0b\x32\x18.DatasetApiProtobuf.Time\x12\x0f\n\x07gddBase\x18\x07 \x01(\x02\x12\x10\n\x08gddLimit\x18\x08 \x01(\x02\x12\r\n\x05slope\x18\t \x01(\x02\x12\x0e\n\x06\x66\x61\x63ing\x18\n \x01(\x02\x12\x0e\n\x06pvPeak\x18\x0b \x01(\x02\x12\x12\n\nstartDepth\x18\x0c \x01(\x03\x12\x10\n\x08\x65ndDepth\x18\r \x01(\x03\x1a*\n\x04Time\x12\x14\n\x0cgapFillRatio\x18\x01 \x01(\x02\x12\x0c\n\x04\x64\x61ta\x18\x02 \x03(\x02\x62\x06proto3'
+    name='Dataset.proto',
+    package='',
+    syntax='proto3',
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+    serialized_pb=b'\n\rDataset.proto\"\x9f\x05\n\x12\x44\x61tasetApiProtobuf\x12\x30\n\ngeometries\x18\x01 \x03(\x0b\x32\x1c.DatasetApiProtobuf.Geometry\x1a\xed\x01\n\x08Geometry\x12\x0e\n\x06\x64omain\x18\x01 \x01(\t\x12\x0c\n\x04lats\x18\x02 \x03(\x02\x12\x0c\n\x04lons\x18\x03 \x03(\x02\x12\x0c\n\x04\x61sls\x18\x04 \x03(\x02\x12\x15\n\rlocationNames\x18\x05 \x03(\t\x12\n\n\x02nx\x18\x06 \x01(\x12\x12\n\n\x02ny\x18\x07 \x01(\x12\x12\x16\n\x0etimeResolution\x18\x08 \x01(\t\x12\x37\n\rtimeIntervals\x18\t \x03(\x0b\x32 .DatasetApiProtobuf.TimeInterval\x12\'\n\x05\x63odes\x18\n \x03(\x0b\x32\x18.DatasetApiProtobuf.Code\x1a\x37\n\x0cTimeInterval\x12\x13\n\x0btimestrings\x18\x01 \x03(\t\x12\x12\n\ntimestamps\x18\x02 \x03(\x12\x1a\x81\x02\n\x04\x43ode\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x03\x12\r\n\x05level\x18\x02 \x01(\t\x12\x10\n\x08variable\x18\x03 \x01(\t\x12\x0c\n\x04unit\x18\x04 \x01(\t\x12\x13\n\x0b\x61ggregation\x18\x05 \x01(\t\x12/\n\rtimeIntervals\x18\x06 \x03(\x0b\x32\x18.DatasetApiProtobuf.Time\x12\x0f\n\x07gddBase\x18\x07 \x01(\x02\x12\x10\n\x08gddLimit\x18\x08 \x01(\x02\x12\r\n\x05slope\x18\t \x01(\x02\x12\x0e\n\x06\x66\x61\x63ing\x18\n \x01(\x02\x12\x0e\n\x06pvPeak\x18\x0b \x01(\x02\x12\x12\n\nstartDepth\x18\x0c \x01(\x03\x12\x10\n\x08\x65ndDepth\x18\r \x01(\x03\x1a*\n\x04Time\x12\x14\n\x0cgapFillRatio\x18\x01 \x01(\x02\x12\x0c\n\x04\x64\x61ta\x18\x02 \x03(\x02\x62\x06proto3'
 )
-
-
 
 
 _DATASETAPIPROTOBUF_GEOMETRY = _descriptor.Descriptor(
-  name='Geometry',
-  full_name='DatasetApiProtobuf.Geometry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='domain', full_name='DatasetApiProtobuf.Geometry.domain', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='lats', full_name='DatasetApiProtobuf.Geometry.lats', index=1,
-      number=2, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='lons', full_name='DatasetApiProtobuf.Geometry.lons', index=2,
-      number=3, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='asls', full_name='DatasetApiProtobuf.Geometry.asls', index=3,
-      number=4, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='locationNames', full_name='DatasetApiProtobuf.Geometry.locationNames', index=4,
-      number=5, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='nx', full_name='DatasetApiProtobuf.Geometry.nx', index=5,
-      number=6, type=18, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ny', full_name='DatasetApiProtobuf.Geometry.ny', index=6,
-      number=7, type=18, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='timeResolution', full_name='DatasetApiProtobuf.Geometry.timeResolution', index=7,
-      number=8, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='timeIntervals', full_name='DatasetApiProtobuf.Geometry.timeIntervals', index=8,
-      number=9, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='codes', full_name='DatasetApiProtobuf.Geometry.codes', index=9,
-      number=10, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=91,
-  serialized_end=328,
+    name='Geometry',
+    full_name='DatasetApiProtobuf.Geometry',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name='domain', full_name='DatasetApiProtobuf.Geometry.domain', index=0,
+            number=1, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='lats', full_name='DatasetApiProtobuf.Geometry.lats', index=1,
+            number=2, type=2, cpp_type=6, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='lons', full_name='DatasetApiProtobuf.Geometry.lons', index=2,
+            number=3, type=2, cpp_type=6, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='asls', full_name='DatasetApiProtobuf.Geometry.asls', index=3,
+            number=4, type=2, cpp_type=6, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='locationNames', full_name='DatasetApiProtobuf.Geometry.locationNames', index=4,
+            number=5, type=9, cpp_type=9, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='nx', full_name='DatasetApiProtobuf.Geometry.nx', index=5,
+            number=6, type=18, cpp_type=2, label=1,
+            has_default_value=False, default_value=0,
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='ny', full_name='DatasetApiProtobuf.Geometry.ny', index=6,
+            number=7, type=18, cpp_type=2, label=1,
+            has_default_value=False, default_value=0,
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='timeResolution', full_name='DatasetApiProtobuf.Geometry.timeResolution', index=7,
+            number=8, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='timeIntervals', full_name='DatasetApiProtobuf.Geometry.timeIntervals', index=8,
+            number=9, type=11, cpp_type=10, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='codes', full_name='DatasetApiProtobuf.Geometry.codes', index=9,
+            number=10, type=11, cpp_type=10, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+    ],
+    extensions=[
+    ],
+    nested_types=[],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=91,
+    serialized_end=328,
 )
 
 _DATASETAPIPROTOBUF_TIMEINTERVAL = _descriptor.Descriptor(
-  name='TimeInterval',
-  full_name='DatasetApiProtobuf.TimeInterval',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='timestrings', full_name='DatasetApiProtobuf.TimeInterval.timestrings', index=0,
-      number=1, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='timestamps', full_name='DatasetApiProtobuf.TimeInterval.timestamps', index=1,
-      number=2, type=18, cpp_type=2, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=330,
-  serialized_end=385,
+    name='TimeInterval',
+    full_name='DatasetApiProtobuf.TimeInterval',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name='timestrings', full_name='DatasetApiProtobuf.TimeInterval.timestrings', index=0,
+            number=1, type=9, cpp_type=9, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='timestamps', full_name='DatasetApiProtobuf.TimeInterval.timestamps', index=1,
+            number=2, type=18, cpp_type=2, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+    ],
+    extensions=[
+    ],
+    nested_types=[],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=330,
+    serialized_end=385,
 )
 
 _DATASETAPIPROTOBUF_CODE = _descriptor.Descriptor(
-  name='Code',
-  full_name='DatasetApiProtobuf.Code',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='code', full_name='DatasetApiProtobuf.Code.code', index=0,
-      number=1, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='level', full_name='DatasetApiProtobuf.Code.level', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='variable', full_name='DatasetApiProtobuf.Code.variable', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='unit', full_name='DatasetApiProtobuf.Code.unit', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='aggregation', full_name='DatasetApiProtobuf.Code.aggregation', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='timeIntervals', full_name='DatasetApiProtobuf.Code.timeIntervals', index=5,
-      number=6, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='gddBase', full_name='DatasetApiProtobuf.Code.gddBase', index=6,
-      number=7, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='gddLimit', full_name='DatasetApiProtobuf.Code.gddLimit', index=7,
-      number=8, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='slope', full_name='DatasetApiProtobuf.Code.slope', index=8,
-      number=9, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='facing', full_name='DatasetApiProtobuf.Code.facing', index=9,
-      number=10, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='pvPeak', full_name='DatasetApiProtobuf.Code.pvPeak', index=10,
-      number=11, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='startDepth', full_name='DatasetApiProtobuf.Code.startDepth', index=11,
-      number=12, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='endDepth', full_name='DatasetApiProtobuf.Code.endDepth', index=12,
-      number=13, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=388,
-  serialized_end=645,
+    name='Code',
+    full_name='DatasetApiProtobuf.Code',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name='code', full_name='DatasetApiProtobuf.Code.code', index=0,
+            number=1, type=3, cpp_type=2, label=1,
+            has_default_value=False, default_value=0,
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='level', full_name='DatasetApiProtobuf.Code.level', index=1,
+            number=2, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='variable', full_name='DatasetApiProtobuf.Code.variable', index=2,
+            number=3, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='unit', full_name='DatasetApiProtobuf.Code.unit', index=3,
+            number=4, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='aggregation', full_name='DatasetApiProtobuf.Code.aggregation', index=4,
+            number=5, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='timeIntervals', full_name='DatasetApiProtobuf.Code.timeIntervals', index=5,
+            number=6, type=11, cpp_type=10, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='gddBase', full_name='DatasetApiProtobuf.Code.gddBase', index=6,
+            number=7, type=2, cpp_type=6, label=1,
+            has_default_value=False, default_value=float(0),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='gddLimit', full_name='DatasetApiProtobuf.Code.gddLimit', index=7,
+            number=8, type=2, cpp_type=6, label=1,
+            has_default_value=False, default_value=float(0),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='slope', full_name='DatasetApiProtobuf.Code.slope', index=8,
+            number=9, type=2, cpp_type=6, label=1,
+            has_default_value=False, default_value=float(0),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='facing', full_name='DatasetApiProtobuf.Code.facing', index=9,
+            number=10, type=2, cpp_type=6, label=1,
+            has_default_value=False, default_value=float(0),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='pvPeak', full_name='DatasetApiProtobuf.Code.pvPeak', index=10,
+            number=11, type=2, cpp_type=6, label=1,
+            has_default_value=False, default_value=float(0),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='startDepth', full_name='DatasetApiProtobuf.Code.startDepth', index=11,
+            number=12, type=3, cpp_type=2, label=1,
+            has_default_value=False, default_value=0,
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='endDepth', full_name='DatasetApiProtobuf.Code.endDepth', index=12,
+            number=13, type=3, cpp_type=2, label=1,
+            has_default_value=False, default_value=0,
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+    ],
+    extensions=[
+    ],
+    nested_types=[],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=388,
+    serialized_end=645,
 )
 
 _DATASETAPIPROTOBUF_TIME = _descriptor.Descriptor(
-  name='Time',
-  full_name='DatasetApiProtobuf.Time',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='gapFillRatio', full_name='DatasetApiProtobuf.Time.gapFillRatio', index=0,
-      number=1, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='data', full_name='DatasetApiProtobuf.Time.data', index=1,
-      number=2, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=647,
-  serialized_end=689,
+    name='Time',
+    full_name='DatasetApiProtobuf.Time',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name='gapFillRatio', full_name='DatasetApiProtobuf.Time.gapFillRatio', index=0,
+            number=1, type=2, cpp_type=6, label=1,
+            has_default_value=False, default_value=float(0),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='data', full_name='DatasetApiProtobuf.Time.data', index=1,
+            number=2, type=2, cpp_type=6, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+    ],
+    extensions=[
+    ],
+    nested_types=[],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=647,
+    serialized_end=689,
 )
 
 _DATASETAPIPROTOBUF = _descriptor.Descriptor(
-  name='DatasetApiProtobuf',
-  full_name='DatasetApiProtobuf',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='geometries', full_name='DatasetApiProtobuf.geometries', index=0,
-      number=1, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[_DATASETAPIPROTOBUF_GEOMETRY, _DATASETAPIPROTOBUF_TIMEINTERVAL, _DATASETAPIPROTOBUF_CODE, _DATASETAPIPROTOBUF_TIME, ],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=18,
-  serialized_end=689,
+    name='DatasetApiProtobuf',
+    full_name='DatasetApiProtobuf',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name='geometries', full_name='DatasetApiProtobuf.geometries', index=0,
+            number=1, type=11, cpp_type=10, label=3,
+            has_default_value=False, default_value=[],
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+    ],
+    extensions=[
+    ],
+    nested_types=[_DATASETAPIPROTOBUF_GEOMETRY, _DATASETAPIPROTOBUF_TIMEINTERVAL, _DATASETAPIPROTOBUF_CODE, _DATASETAPIPROTOBUF_TIME, ],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=18,
+    serialized_end=689,
 )
 
 _DATASETAPIPROTOBUF_GEOMETRY.fields_by_name['timeIntervals'].message_type = _DATASETAPIPROTOBUF_TIMEINTERVAL
@@ -354,37 +350,37 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 DatasetApiProtobuf = _reflection.GeneratedProtocolMessageType('DatasetApiProtobuf', (_message.Message,), {
 
-  'Geometry' : _reflection.GeneratedProtocolMessageType('Geometry', (_message.Message,), {
-    'DESCRIPTOR' : _DATASETAPIPROTOBUF_GEOMETRY,
-    '__module__' : 'Dataset_pb2'
-    # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Geometry)
+    'Geometry' : _reflection.GeneratedProtocolMessageType('Geometry', (_message.Message,), {
+        'DESCRIPTOR' : _DATASETAPIPROTOBUF_GEOMETRY,
+        '__module__' : 'Dataset_pb2'
+        # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Geometry)
     })
-  ,
+    ,
 
-  'TimeInterval' : _reflection.GeneratedProtocolMessageType('TimeInterval', (_message.Message,), {
-    'DESCRIPTOR' : _DATASETAPIPROTOBUF_TIMEINTERVAL,
-    '__module__' : 'Dataset_pb2'
-    # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.TimeInterval)
+    'TimeInterval' : _reflection.GeneratedProtocolMessageType('TimeInterval', (_message.Message,), {
+        'DESCRIPTOR' : _DATASETAPIPROTOBUF_TIMEINTERVAL,
+        '__module__' : 'Dataset_pb2'
+        # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.TimeInterval)
     })
-  ,
+    ,
 
-  'Code' : _reflection.GeneratedProtocolMessageType('Code', (_message.Message,), {
-    'DESCRIPTOR' : _DATASETAPIPROTOBUF_CODE,
-    '__module__' : 'Dataset_pb2'
-    # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Code)
+    'Code' : _reflection.GeneratedProtocolMessageType('Code', (_message.Message,), {
+        'DESCRIPTOR' : _DATASETAPIPROTOBUF_CODE,
+        '__module__' : 'Dataset_pb2'
+        # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Code)
     })
-  ,
+    ,
 
-  'Time' : _reflection.GeneratedProtocolMessageType('Time', (_message.Message,), {
-    'DESCRIPTOR' : _DATASETAPIPROTOBUF_TIME,
-    '__module__' : 'Dataset_pb2'
-    # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Time)
+    'Time' : _reflection.GeneratedProtocolMessageType('Time', (_message.Message,), {
+        'DESCRIPTOR' : _DATASETAPIPROTOBUF_TIME,
+        '__module__' : 'Dataset_pb2'
+        # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Time)
     })
-  ,
-  'DESCRIPTOR' : _DATASETAPIPROTOBUF,
-  '__module__' : 'Dataset_pb2'
-  # @@protoc_insertion_point(class_scope:DatasetApiProtobuf)
-  })
+    ,
+    'DESCRIPTOR' : _DATASETAPIPROTOBUF,
+    '__module__' : 'Dataset_pb2'
+    # @@protoc_insertion_point(class_scope:DatasetApiProtobuf)
+})
 _sym_db.RegisterMessage(DatasetApiProtobuf)
 _sym_db.RegisterMessage(DatasetApiProtobuf.Geometry)
 _sym_db.RegisterMessage(DatasetApiProtobuf.TimeInterval)
