@@ -26,12 +26,14 @@ This module will also install the following dependencies automatically:
 
 
 ## Usage
-See [main.py](./main.py) for a working example. To generate the query JSON it is highly recommended to use the [dataset API web interfaces](https://docs.meteoblue.com/en/apis/environmental-data/web-interfaces)
-
-Note: This demo code implies that you are using `async` functions. If you do not want to use `async/await`, use `result = client.querySync(query)`.
+See [main.py](./main.py) for a working example. To generate the query JSON it is highly recommended to use the [dataset API web interfaces](https://docs.meteoblue.com/en/apis/environmental-data/web-interfaces).
 
 ```python
 import meteoblue_dataset_sdk
+import logging
+
+# Display information about the current download state
+logging.basicConfig(level=logging.INFO)
 
 query = {
     "units": {
@@ -57,8 +59,8 @@ query = {
         }
     ],
 }
-client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")  # ask for key
-result = await client.query(query)
+client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
+result = client.querySync(query)
 # result is a structured object containing timestamps and data
 
 timestamps = result.geometries[0].timeIntervals[0].timestamps
@@ -68,6 +70,13 @@ print(timestamps)
 # [1546300800, 1546304400, 1546308000, 1546311600, 1546315200, ...
 print(data)
 # [2.89, 2.69, 2.549999, 2.3800001,
+```
+
+If your code is using `async/await`, you should use `await client.query()` instead of `client.querySync()`. Asynchronous IO is essential for modern webserver frameworks like flask of fastapi.
+
+```python
+client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
+result = await client.query(query)
 ```
 
 More detailed output of the `result` object. The output is defined as [this protobuf structure](./meteoblue_dataset_sdk/Dataset.proto).
