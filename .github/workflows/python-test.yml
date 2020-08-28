@@ -10,7 +10,7 @@ jobs:
       max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.7] # , 3.8 issues warning in unittest https://github.com/aio-libs/aiohttp/issues/4477
 
     steps:
     - uses: actions/checkout@v1
