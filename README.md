@@ -4,6 +4,8 @@
 
 This library simplifies access to the [meteoblue dataset API](https://docs.meteoblue.com/en/apis/environmental-data/dataset-api).
 
+WARNING: This library is under development and has no declared stable version 1.0 yet! Use with caution!
+
 In order to use this library you need a meteoblue API key.
 
 Features:
@@ -15,15 +17,18 @@ Features:
 
 
 ## Installation
-- Ensure that you are using at least Python 3.7 with `python --version` 
-- Install the module with `pip3 install 'meteoblue_dataset_sdk>=1.0.0,<2'`
+- Ensure that you are using at least Python 3.7 with `python --version` (Sometimes `python3`)
+- Install the module with `pip install 'meteoblue_dataset_sdk >=0.0,<0.1'` (Sometimes `pip3`)
 
 This module will also install the following dependencies automatically:
 - aiohttp >=3.6,<4
 - protobuf >=3.0,<4
 
+
 ## Usage
 See [main.py](./main.py) for a working example. To generate the query JSON it is highly recommended to use the [dataset API web interfaces](https://docs.meteoblue.com/en/apis/environmental-data/web-interfaces)
+
+Note: This demo code implies that you are using `async` functions. If you do not want to use `async/await`, use `result = client.querySync(query)`.
 
 ```python
 import meteoblue_dataset_sdk
