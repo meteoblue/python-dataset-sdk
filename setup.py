@@ -1,26 +1,5 @@
-import setuptools
+import os
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+from setuptools import find_packages, setup
 
-setuptools.setup(
-    name="mbdataset",
-    version="0.0.10",
-    author="Jonas Wolff",
-    author_email="jonas.wolff@meteoblue.com",
-    description="Provides easy access to meteoblue dataset api.",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/meteoblue/python-dataset-sdk",
-    packages=setuptools.find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
-    python_requires='>=3.7',
-    install_requires=[
-        "aiohttp>=3.6,<4",
-        "protobuf>=3.0,<4"
-    ]
-)
+setup(use_scm_version=True,)
