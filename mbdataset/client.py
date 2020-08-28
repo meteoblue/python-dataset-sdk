@@ -13,16 +13,19 @@ class ClientConfig(object):
 
     def __init__(self, apikey: str):
         # urls
-        self.statusUrl = 'http://mystaging.meteoblue.com/queue/status/%s'  # following queue id
+        self.statusUrl = 'http://my.meteoblue.com/queue/status/%s'  # following job id
         # following api key
-        self.queryUrl = 'http://mystaging.meteoblue.com/dataset/query?apikey=%s'
-        self.resultUrl = 'http://queueresults.meteoblue.com/%s'  # following query id
+        self.queryUrl = 'http://my.meteoblue.com/dataset/query?apikey=%s'
+        self.resultUrl = 'http://queueresults.meteoblue.com/%s'  # following job id
 
         # http
         self.httpMaxRetryCount = 5
+        self.httpRetrySleepDuration = 1
 
         # other config
         self.apikey = apikey
+
+        self.queueRetrySleepDuration = 5
 
 
 class Error(Exception):
@@ -31,7 +34,7 @@ class Error(Exception):
 
 
 class ApiError(Error):
-    """Exception raised for errors in the input.
+    """Exception raised for errors by the dataset API
 
     Attributes:
         message -- explanation of the error
@@ -58,33 +61,31 @@ class Client(object):
         """
         logging.debug('Getting url %s %s' % (method, url))
 
-        async with session.request(method, url, json=json) as response:
-            # return if successful
-            if 200 <= response.status <= 299:
-                yield response
-                return
-
-            # retry mechanism
-            shouldRetry = retryCount < self._config.httpMaxRetryCount
-            # check if request timed out or backend threw an error
-            if shouldRetry and (response.status == 408 or 500 <= response.status <= 599):
-                # 408: HTTP request timeout
-                # 500-599: HTTP backend error
-                await asyncio.sleep(1)
-                async with self._fetch(session, method, url, retryCount + 1) as response:
+        for retry in range(self._config.httpMaxRetryCount):
+            async with session.request(method, url, json=json) as response:
+                # return if successful
+                if 200 <= response.status <= 299:
                     yield response
                     return
 
-            # meteoblue APIs return a JSON encoded error message
-            if response.status == 400:
-                json = await response.json()
-                logging.debug("API returned error message: %s" %
-                              json["error_message"])
-                raise ApiError(json["error_message"])
+                # meteoblue APIs return a JSON encoded error message
+                if response.status == 400 or response.status == 500:
+                    json = await response.json()
+                    logging.debug("API returned error message: %s" %
+                                  json["error_message"])
+                    raise ApiError(json["error_message"])
 
-            logging.error('API returned unexpected error: %s' %
-                          response.content)
-            raise Exception("API returned unexpected error", response.content)
+                if retry == self._config.httpMaxRetryCount - 1:
+                    logging.error('API returned unexpected error: %s' %
+                                  response.content)
+                    raise Exception(
+                        "API returned unexpected error", response.content)
+
+                # retry mechanism
+                # check if request timed out or backend threw an error
+                # if response.status == 408 or 500 <= response.status <= 599:
+                logging.info("Request failed or timed out. Try %s" % retry)
+                logging.debug(response)
 
     @asynccontextmanager
     async def _runOnJobQueue(self, session: aiohttp.ClientSession, params: dict):
@@ -119,7 +120,7 @@ class Client(object):
                 raise ApiError(json["error_message"])
             logging.info(
                 'Waiting 5 seconds for job to complete. Status: %s, job id %s' % (status, jobId))
-            await asyncio.sleep(5)
+            await asyncio.sleep(self._config.queueRetrySleepDuration)
 
         # Fetch the job queue result
         resultUrl = self._config.resultUrl % jobId
@@ -130,7 +131,7 @@ class Client(object):
     @asynccontextmanager
     async def queryRaw(self, params: dict):
         """
-        Query meteoblue dataset api asynchronously, run multiple queries in parallel
+        Query meteoblue dataset api asynchronously and return a ClientResponse object using context manager
         :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: ClientResponse object from aiohttp lib
         """
@@ -164,13 +165,13 @@ class Client(object):
             msg.ParseFromString(data)
             return msg
 
-    def querySequential(self, params: dict):
+    def querySync(self, params: dict):
         """
         Query meteoblue dataset api synchronously for sequential usage
         :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: ClientResponse object from aiohttp lib
         """
-        # return asyncio.run(self.query(params))
+        return asyncio.run(self.query(params))
 
 
 async def main():
@@ -182,9 +183,11 @@ async def main():
     # import mbdataset
     mb = Client(apikey='xxxxx')  # ask for key
     a = await mb.query(query2)
-    timesteps = a.perGeometry[0].timeIntervals[0].times
+    print(a)
+
+    timesteps = a.geometries[0].timeIntervals[0].timestamps
     logging.debug(timesteps)
-    data = a.perGeometry[0].codes[0].dataPerTimeIntervals[0].data
+    data = a.geometries[0].codes[0].timeIntervals[0].data
     logging.debug(data)
     #query1 = asyncio.create_task(mb.query_async(qparams))
     #query2 = asyncio.create_task(mb.query_async(qparams))
