@@ -27,7 +27,12 @@ message DatasetApiProtobuf {
 
   message TimeInterval {
     repeated string timestrings = 1;
-    repeated sint64 timestamps = 2;
+    // the first timestamp as unix timestamp
+    sint64 start = 2;
+    // the last unix timestamp wich is not included in the sequence (end = last + stide)
+    sint64 end = 3;
+    // the number of secounds to step by in each timestep
+    int64 stride = 4;
   }
 
   message Code {
