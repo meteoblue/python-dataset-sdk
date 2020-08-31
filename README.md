@@ -81,7 +81,12 @@ client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
 result = await client.query(query)
 ```
 
-More detailed output of the `result` object. The output is defined as [this protobuf structure](./meteoblue_dataset_sdk/Dataset.proto).
+## Protobuf format
+Data is transferred using protobuf and defined as [this protobuf structure](./meteoblue_dataset_sdk/Dataset.proto).
+
+A 10 year hourly data series for 1 location requires `350 kb` using protobuf, compared to `1600 kb` using JSON. Additionally the meteoblue Python SDK transfers data using gzip which reduces the size to only `87 kb`. 
+
+More detailed output of the `result` protobuf object:
 
 ```
 geometries {
