@@ -63,14 +63,16 @@ client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
 result = client.querySync(query)
 # result is a structured object containing timestamps and data
 
-timestamps = result.geometries[0].timeIntervals[0].timestamps
+timeInterval = result.geometries[0].timeIntervals[0]
 data = result.geometries[0].codes[0].timeIntervals[0].data
 
-print(timestamps)
-# [1546300800, 1546304400, 1546308000, 1546311600, 1546315200, ...
-print(data)
-# [2.89, 2.69, 2.549999, 2.3800001,
+print(timeInterval)
+# start: 1546300800
+# end: 1546387200
+# stride: 3600
 ```
+
+NOTE: `timeInterval.end` is the first timestamp that is not included anymore in the time interval.
 
 If your code is using `async/await`, you should use `await client.query()` instead of `client.querySync()`. Asynchronous IO is essential for modern webserver frameworks like Flask or FastAPI.
 
@@ -92,30 +94,9 @@ geometries {
   ny: 1
   timeResolution: "hourly"
   timeIntervals {
-    timestamps: 1546300800
-    timestamps: 1546304400
-    timestamps: 1546308000
-    timestamps: 1546311600
-    timestamps: 1546315200
-    timestamps: 1546318800
-    timestamps: 1546322400
-    timestamps: 1546326000
-    timestamps: 1546329600
-    timestamps: 1546333200
-    timestamps: 1546336800
-    timestamps: 1546340400
-    timestamps: 1546344000
-    timestamps: 1546347600
-    timestamps: 1546351200
-    timestamps: 1546354800
-    timestamps: 1546358400
-    timestamps: 1546362000
-    timestamps: 1546365600
-    timestamps: 1546369200
-    timestamps: 1546372800
-    timestamps: 1546376400
-    timestamps: 1546380000
-    timestamps: 1546383600
+    start: 1546300800
+    end: 1546387200
+    stride: 3600
   }
   codes {
     code: 11

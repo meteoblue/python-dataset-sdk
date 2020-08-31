@@ -35,11 +35,14 @@ async def myFunction():
     result = await client.query(query)
     # result is a structured object containing timestamps and data
 
-    timestamps = result.geometries[0].timeIntervals[0].timestamps
+    timeInterval = result.geometries[0].timeIntervals[0]
     data = result.geometries[0].codes[0].timeIntervals[0].data
 
-    print(timestamps)
-    # [1546300800, 1546304400, 1546308000, 1546311600, 1546315200, ...
+    print(timeInterval)
+    # start: 1546300800
+    # end: 1546387200
+    # stride: 3600
+
     print(data)
     # [2.89, 2.69, 2.549999, 2.3800001,
 

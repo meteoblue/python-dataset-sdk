@@ -44,7 +44,7 @@ class Test_TestQuery(unittest.TestCase):
         client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
         result = asyncio.run(client.query(query))
         geo = result.geometries[0]
-        timestamps = geo.timeIntervals[0].timestamps
+        timeInterval = result.geometries[0].timeIntervals[0]
         variable = geo.codes[0]
         data = variable.timeIntervals[0].data
         # print(result)
@@ -63,35 +63,10 @@ class Test_TestQuery(unittest.TestCase):
         self.assertEqual(variable.unit, "°C")
         self.assertEqual(variable.aggregation, "none")
 
-        self.assertEqual(
-            timestamps,
-            [
-                1546300800,
-                1546304400,
-                1546308000,
-                1546311600,
-                1546315200,
-                1546318800,
-                1546322400,
-                1546326000,
-                1546329600,
-                1546333200,
-                1546336800,
-                1546340400,
-                1546344000,
-                1546347600,
-                1546351200,
-                1546354800,
-                1546358400,
-                1546362000,
-                1546365600,
-                1546369200,
-                1546372800,
-                1546376400,
-                1546380000,
-                1546383600,
-            ],
-        )
+        self.assertEqual(timeInterval.start, 1546300800)
+        self.assertEqual(timeInterval.end, 1546383600 + 3600)
+        self.assertEqual(timeInterval.stride, 3600)
+
         self.assertEqual(
             data,
             [
