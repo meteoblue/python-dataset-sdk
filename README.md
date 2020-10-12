@@ -4,8 +4,6 @@
 
 This library simplifies access to the [meteoblue dataset API](https://docs.meteoblue.com/en/apis/environmental-data/dataset-api).
 
-WARNING: This library is under development and has no declared stable version 1.0 yet! Use with caution!
-
 In order to use this library you need a meteoblue API key.
 
 Features:
@@ -14,11 +12,12 @@ Features:
 - Efficiently transfers data using compressed protobuf messages
 - Asynchronous interface to query data in parallel
 - Data can be used as simple floating-point arrays. No further formatting required.
+- Semantic Versioning: The interface for version 1 is declared stable. Breaking interface changes will be published in version 2.
 
 
 ## Installation
 - Ensure that you are using at least Python 3.7 with `python --version` (Sometimes `python3`)
-- Install the module with `pip install 'meteoblue_dataset_sdk >=0.0,<0.1'` (Sometimes `pip3`)
+- Install the module with `pip install 'meteoblue_dataset_sdk >=1.0,<2.0'` (Sometimes `pip3`)
 
 This module will also install the following dependencies automatically:
 - aiohttp >=3.6,<4
@@ -47,7 +46,7 @@ query = {
         "coordinates": [[7.57327, 47.558399, 279]],
         "locationNames": ["Basel"],
     },
-    "format": "json",
+    "format": "protobuf",
     "timeIntervals": ["2019-01-01T+00:00/2019-01-01T+00:00"],
     "timeIntervalsAlignment": "none",
     "queries": [
@@ -136,12 +135,4 @@ geometries {
     }
   }
 }
-```
-
-
-## Developer setup
-```bash
-python3 -m venv env
-source env/bin/activate
-pip3 install -r requirements.txt
 ```
