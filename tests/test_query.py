@@ -1,8 +1,9 @@
-import unittest
-import meteoblue_dataset_sdk
 import asyncio
 import logging
 import os
+import unittest
+
+import meteoblue_dataset_sdk
 
 
 class Test_TestQuery(unittest.TestCase):

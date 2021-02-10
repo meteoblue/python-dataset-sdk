@@ -2,20 +2,24 @@
 meteoblue dataset client
 """
 
-import aiohttp
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+
+import aiohttp
+
 from .Dataset_pb2 import DatasetApiProtobuf
 
 
 class ClientConfig(object):
     def __init__(self, apikey: str):
         # urls
-        self.statusUrl = "http://my.meteoblue.com/queue/status/%s"  # following job id
+        # following job id
+        self.statusUrl = "http://my.meteoblue.com/queue/status/{}"
         # following api key
-        self.queryUrl = "http://my.meteoblue.com/dataset/query?apikey=%s"
-        self.resultUrl = "http://queueresults.meteoblue.com/%s"  # following job id
+        self.queryUrl = "http://my.meteoblue.com/dataset/query?apikey={}"
+        # following job id
+        self.resultUrl = "http://queueresults.meteoblue.com/{}"
 
         # http
         self.httpMaxRetryCount = 5
@@ -54,7 +58,6 @@ class Client(object):
         session: aiohttp.ClientSession,
         method: str,
         url: str,
-        retryCount=0,
         json: any = None,
     ):
         """
@@ -65,7 +68,7 @@ class Client(object):
         :param retryCount: number of retries to attempt
         :return:
         """
-        logging.debug("Getting url %s %s" % (method, url))
+        logging.debug(f"Getting url {method} {url}")
 
         for retry in range(self._config.httpMaxRetryCount):
             async with session.request(method, url, json=json) as response:
@@ -78,20 +81,18 @@ class Client(object):
                 if response.status == 400 or response.status == 500:
                     json = await response.json()
                     logging.debug(
-                        "API returned error message: %s" % json["error_message"]
+                        f"API returned error message: {json['error_message']}"
                     )
                     raise ApiError(json["error_message"])
 
                 if retry == self._config.httpMaxRetryCount - 1:
-                    logging.error(
-                        "API returned unexpected error: %s" % response.content
-                    )
+                    logging.error(f"API returned unexpected error: {response.content}")
                     raise Exception("API returned unexpected error", response.content)
 
                 # retry mechanism
                 # check if request timed out or backend threw an error
                 # if response.status == 408 or 500 <= response.status <= 599:
-                logging.info("Request failed or timed out. Try %s" % retry)
+                logging.info(f"Request failed or timed out. Try {retry}")
                 logging.debug(response)
 
     @asynccontextmanager
@@ -106,19 +107,19 @@ class Client(object):
         # Start job on a job queue
         logging.info("Starting job on queue")
         params["runOnJobQueue"] = True
-        url = self._config.queryUrl % self._config.apikey
+        url = self._config.queryUrl.format(self._config.apikey)
         async with self._fetch(session, "POST", url, json=params) as response:
             responseJson = await response.json()
 
         # Wait until the job is finished
         jobId = responseJson["id"]
-        logging.info("Waiting until job has finished (job id %s)" % jobId)
-        statusUrl = self._config.statusUrl % str(jobId)
+        logging.info(f"Waiting until job has finished (job id {jobId})")
+        statusUrl = self._config.statusUrl.format(jobId)
         while True:
             async with self._fetch(session, "GET", statusUrl) as response:
                 json = await response.json()
             status = json["status"]
-            logging.debug("Job status is %s" % status)
+            logging.debug(f"Job status is {status}")
             if status == "finished":
                 break
             if status == "deleted":
@@ -126,22 +127,24 @@ class Client(object):
             if status == "error":
                 raise ApiError(json["error_message"])
             logging.info(
-                "Waiting 5 seconds for job to complete. Status: %s, job id %s"
-                % (status, jobId)
+                f"Waiting 5 seconds for job to complete. Status: {status}, \
+                job id {jobId}"
             )
             await asyncio.sleep(self._config.queueRetrySleepDuration)
 
         # Fetch the job queue result
-        resultUrl = self._config.resultUrl % jobId
-        logging.debug("Fetching result for job id %s" % jobId)
+        resultUrl = self._config.resultUrl.format(jobId)
+        logging.debug(f"Fetching result for job id {jobId}")
         async with self._fetch(session, "GET", resultUrl) as response:
             yield response
 
     @asynccontextmanager
     async def queryRaw(self, params: dict):
         """
-        Query meteoblue dataset api asynchronously and return a ClientResponse object using context manager
-        :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
+        Query meteoblue dataset api asynchronously and return a ClientResponse
+        object using context manager
+        :param params: query parameters
+            see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: ClientResponse object from aiohttp lib
         """
 
@@ -161,8 +164,12 @@ class Client(object):
 
     async def query(self, params: dict):
         """
-        Query meteoblue dataset api asynchronously, transfer data using protobuf and return a structured object
-        :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
+        Query meteoblue dataset api asynchronously, transfer data using protobuf
+         and return a structured object
+
+        :param params:
+            query parameters,
+            see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: DatasetApiProtobuf object
         """
 
@@ -177,7 +184,9 @@ class Client(object):
     def querySync(self, params: dict):
         """
         Query meteoblue dataset api synchronously for sequential usage
-        :param params: query parameters, see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
+        :param params:
+             query parameters.
+             see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: ClientResponse object from aiohttp lib
         """
         return asyncio.run(self.query(params))
