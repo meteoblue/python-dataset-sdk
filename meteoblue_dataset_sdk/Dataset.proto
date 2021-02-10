@@ -56,9 +56,11 @@ message DatasetApiProtobuf {
     float gddLimit = 8;
     float slope = 9;
     float facing = 10;
-    float pvPeak = 11;
+    float kwPeak = 11;
     int64 startDepth = 12;
     int64 endDepth = 13;
+    float efficiency = 14;
+    int64 tracker = 15;
   }
 
   message Time {
