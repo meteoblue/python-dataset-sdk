@@ -175,7 +175,7 @@ class Client(object):
         """
 
         params["format"] = "protobuf"
-        cached_query_results = self.cache.get_cached_query_results(params)
+        cached_query_results = self.cache.get_query_results(params)
         if cached_query_results:
             return cached_query_results
         async with self.queryRaw(params) as response:

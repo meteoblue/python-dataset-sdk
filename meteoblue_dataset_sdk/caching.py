@@ -4,7 +4,7 @@ import json
 import os
 
 CACHE_PATH = "/tmp/mb_cache"
-DEFAULT_CACHE_DURATION = 30
+DEFAULT_CACHE_DURATION = 300
 
 
 class Cache:
@@ -14,74 +14,69 @@ class Cache:
 
         self.cache_path = cache_path
         self.cache_ttl = cache_ttl
-        self.cache_map = self._build_cache_map()
+        self.cached_files = self._get_cached_files_list()
 
     def store_query_results(self, params: dict, data):
-        query_hash = self._get_query_hash(params)
-        if self._get_valid_keys_from_cache_map(query_hash):
+        query_hash = self._hash_params(params)
+        if self._get_valid_cached_queries(query_hash):
             return
         self._write_query_to_cache(query_hash, data)
 
-    def get_cached_query_results(self, params: dict):
-        query_hash = self._get_query_hash(params)
-        query_dir = os.path.join(self.cache_path, query_hash)
-        valid_keys = self._get_valid_keys_from_cache_map(query_hash)
-        if not valid_keys:
+    def get_query_results(self, params: dict):
+        query_hash = self._hash_params(params)
+        valid_caches = self._get_valid_cached_queries(query_hash)
+        if not valid_caches:
             return
         try:
-            most_recent_key = valid_keys[0]
-            with open(os.path.join(query_dir, most_recent_key), "r") as file:
+            most_recent_key = valid_caches[0]
+            with open(os.path.join(self.cache_path, most_recent_key), "r") as file:
                 print(file.readlines())
                 return file.readlines()
         except FileNotFoundError:
-            print(query_dir, valid_keys[0], "not found")
+            print(valid_caches[0], "not found")
             return
 
-    def delete_expired_cache_keys(self):
-        for query_hash, keys in self.cache_map.items():
-            for key in list(keys):
-                if not self._is_cached_key_valid(key):
-                    os.remove(os.path.join(self.cache_path, query_hash, key))
-                    keys.remove(key)
+    def delete_expired_caches(self):
+        for query_filename in list(self.cached_files):
+            query_hash, timestamp = query_filename.split("_")
+            if not self._is_cached_query_valid(timestamp):
+                os.remove(os.path.join(self.cache_path, query_hash, timestamp))
+                self.cached_files.remove(query_filename)
 
-    def _get_valid_keys_from_cache_map(self, query_hash: str):
-        all_keys_in_dir = self.cache_map.get(query_hash, [])
-        return sorted(
-            [key for key in all_keys_in_dir if self._is_cached_key_valid(key)],
-            reverse=True,
-        )
+    def _get_valid_cached_queries(self, query_hash: str):
+        valid_cached_queries = []
+        for cached_filename in self.cached_files:
+            cache_hash, timestamp = cached_filename.split("_")
+            if query_hash != cache_hash:
+                continue
+            if self._is_cached_query_valid(timestamp):
+                valid_cached_queries.append(cached_filename)
+        return sorted(valid_cached_queries, key=lambda x: x.split("_")[1], reverse=True)
 
-    def _is_cached_key_valid(self, key: str):
-        key_as_datetime = datetime.datetime.fromtimestamp(int(key))
+    def _is_cached_query_valid(self, timestamp: str):
+        key_as_datetime = datetime.datetime.fromtimestamp(int(timestamp))
         cache_duration = datetime.datetime.now() - key_as_datetime
         return cache_duration.seconds < self.cache_ttl
 
     def _write_query_to_cache(self, query_hash: str, data):
-        ts_as_key = str(round(datetime.datetime.now().timestamp()))
-        query_dir_path = os.path.join(self.cache_path, query_hash)
-        if not os.path.exists(query_dir_path):
-            os.mkdir(query_dir_path)
-
-        if self.cache_map.get(query_hash):
-            self.cache_map[query_hash].append(ts_as_key)
-        else:
-            self.cache_map[query_hash] = [ts_as_key]
-
-        with open(os.path.join(query_dir_path, ts_as_key), "x") as file:
+        ts_as_key = round(datetime.datetime.now().timestamp())
+        query_cache_filename = f"{query_hash}_{ts_as_key}"
+        query_cache_file = os.path.join(self.cache_path, query_cache_filename)
+        with open(query_cache_file, "x") as file:
             file.write(data)
+        self.cached_files.append(query_cache_filename)
 
-    def _build_cache_map(self):
-        cache_map = {}
-        for query_dir_name, _, keys in os.walk(self.cache_path):
-            cache_map[query_dir_name] = []
-            for key in keys:
-                if not self._is_cached_key_valid(key):
-                    os.remove(os.path.join(self.cache_path, query_dir_name, key))
-                cache_map[query_dir_name].append(key)
+    def _get_cached_files_list(self):
+        cache_map = []
+        for query_filename in os.listdir(self.cache_path):
+            query_hash, timestamp = query_filename.split("_")
+            if not self._is_cached_query_valid(timestamp):
+                os.remove(os.path.join(self.cache_path, query_filename))
+            cache_map.append(query_filename)
         return cache_map
 
     @staticmethod
-    def _get_query_hash(query_params: dict):
+    def _hash_params(query_params: dict):
         params_encoded = json.dumps(query_params).encode()
         hashed_params = hashlib.md5(params_encoded)
         return hashed_params.hexdigest()
