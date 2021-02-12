@@ -39,9 +39,10 @@ class Cache:
     def delete_expired_caches(self):
         for query_filename in list(self.cached_files):
             query_hash, timestamp = query_filename.split("_")
-            if not self._is_cached_query_valid(timestamp):
-                os.remove(os.path.join(self.cache_path, query_hash, timestamp))
-                self.cached_files.remove(query_filename)
+            if self._is_cached_query_valid(timestamp):
+                continue
+            os.remove(os.path.join(self.cache_path, query_hash, timestamp))
+            self.cached_files.remove(query_filename)
 
     def _get_valid_cached_queries(self, query_hash: str):
         valid_cached_queries = []
