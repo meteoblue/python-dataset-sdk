@@ -2,13 +2,15 @@ import datetime
 import hashlib
 import json
 import os
+import tempfile
 
-CACHE_PATH = "/tmp/mb_cache"
+CACHE_DIR = "mb_cache"
 DEFAULT_CACHE_DURATION = 300
 
 
 class Cache:
-    def __init__(self, cache_path=CACHE_PATH, cache_ttl=DEFAULT_CACHE_DURATION):
+    def __init__(self, cache_path=None, cache_ttl=DEFAULT_CACHE_DURATION):
+        cache_path = cache_path or os.path.join(tempfile.gettempdir(), CACHE_DIR)
         if not os.path.exists(cache_path):
             os.mkdir(cache_path)
 
@@ -24,6 +26,7 @@ class Cache:
         query_cache_filename = f"{query_hash}_{ts_as_key}"
         query_cache_file = os.path.join(self.cache_path, query_cache_filename)
         with open(query_cache_file, "x") as file:
+            # todo: async
             file.write(data)
         self.cached_files.append(query_cache_filename)
 
@@ -35,8 +38,8 @@ class Cache:
         try:
             most_recent_key = valid_caches[0]
             with open(os.path.join(self.cache_path, most_recent_key), "r") as file:
-                print(file.readlines())
-                return file.readlines()
+                print(file.read())
+                return file.read()
         except FileNotFoundError:
             print(valid_caches[0], "not found")
             return
@@ -46,6 +49,7 @@ class Cache:
             query_hash, timestamp = query_filename.split("_")
             if self._is_cached_query_valid(timestamp):
                 continue
+                #todo: async?
             os.remove(os.path.join(self.cache_path, query_hash, timestamp))
             self.cached_files.remove(query_filename)
 

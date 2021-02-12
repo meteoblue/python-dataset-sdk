@@ -2,3 +2,4 @@ aiohttp>=3.6,<4
 protobuf>=3.0,<4
 nox==2020.12.31
 ipython==7.20.0
+aiofiles==0.6.0
