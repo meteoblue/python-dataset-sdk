@@ -1,5 +1,5 @@
-import threading
 import asyncio
+import threading
 
 
 def run_async(func, *args, **kwargs):

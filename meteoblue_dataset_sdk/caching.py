@@ -20,7 +20,12 @@ class Cache:
         query_hash = self._hash_params(params)
         if self._get_valid_cached_queries(query_hash):
             return
-        self._write_query_to_cache(query_hash, data)
+        ts_as_key = round(datetime.datetime.now().timestamp())
+        query_cache_filename = f"{query_hash}_{ts_as_key}"
+        query_cache_file = os.path.join(self.cache_path, query_cache_filename)
+        with open(query_cache_file, "x") as file:
+            file.write(data)
+        self.cached_files.append(query_cache_filename)
 
     def get_query_results(self, params: dict):
         query_hash = self._hash_params(params)
@@ -58,14 +63,6 @@ class Cache:
         key_as_datetime = datetime.datetime.fromtimestamp(int(timestamp))
         cache_duration = datetime.datetime.now() - key_as_datetime
         return cache_duration.seconds < self.cache_ttl
-
-    def _write_query_to_cache(self, query_hash: str, data):
-        ts_as_key = round(datetime.datetime.now().timestamp())
-        query_cache_filename = f"{query_hash}_{ts_as_key}"
-        query_cache_file = os.path.join(self.cache_path, query_cache_filename)
-        with open(query_cache_file, "x") as file:
-            file.write(data)
-        self.cached_files.append(query_cache_filename)
 
     def _get_cached_files_list(self):
         cache_map = []
