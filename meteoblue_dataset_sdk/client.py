@@ -10,6 +10,7 @@ import aiohttp
 
 from .caching import DEFAULT_CACHE_DURATION, Cache
 from .Dataset_pb2 import DatasetApiProtobuf
+from .utils import run_async
 
 
 class ClientConfig(object):
@@ -192,6 +193,6 @@ class Client(object):
         :param params:
              query parameters.
              see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
-        :return: ClientResponse object from aiohttp lib
+        :return: DatasetApiProtobuf object
         """
-        return asyncio.run(self.query(params))
+        return run_async(self.query, params)
