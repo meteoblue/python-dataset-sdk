@@ -10,6 +10,7 @@ def lint(session):
     session.run("black", *targets)
     session.run("flake8", *targets)
 
+
 @nox.session
 def tests(session):
     session.install(".[test]")

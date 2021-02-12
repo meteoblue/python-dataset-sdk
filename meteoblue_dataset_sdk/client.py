@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 import aiohttp
 
+from .caching import DEFAULT_CACHE_DURATION, Cache
 from .Dataset_pb2 import DatasetApiProtobuf
 
 
@@ -27,8 +28,8 @@ class ClientConfig(object):
 
         # other config
         self.apikey = apikey
-
         self.queueRetrySleepDuration = 5
+        self.cleaning_interval = DEFAULT_CACHE_DURATION * 2
 
 
 class Error(Exception):
@@ -51,6 +52,7 @@ class ApiError(Error):
 class Client(object):
     def __init__(self, apikey: str):
         self._config = ClientConfig(apikey)
+        self.cache = Cache()
 
     @asynccontextmanager
     async def _fetch(
@@ -75,7 +77,6 @@ class Client(object):
                 # return if successful
                 if 200 <= response.status <= 299:
                     yield response
-                    return
 
                 # meteoblue APIs return a JSON encoded error message
                 if response.status == 400 or response.status == 500:
@@ -141,8 +142,8 @@ class Client(object):
     @asynccontextmanager
     async def queryRaw(self, params: dict):
         """
-        Query meteoblue dataset api asynchronously and return a ClientResponse
-        object using context manager
+        Query meteoblue dataset api asynchronously and return a ClientResponse object
+        using context manager
         :param params: query parameters
             see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: ClientResponse object from aiohttp lib
@@ -152,7 +153,7 @@ class Client(object):
             # Try to run the job directly
             # In case the API throws an error, try to run it on a job queue
             try:
-                url = self._config.queryUrl % self._config.apikey
+                url = self._config.queryUrl.format(self._config.apikey)
                 async with self._fetch(session, "POST", url, json=params) as response:
                     yield response
             except ApiError as error:
@@ -164,8 +165,8 @@ class Client(object):
 
     async def query(self, params: dict):
         """
-        Query meteoblue dataset api asynchronously, transfer data using protobuf
-         and return a structured object
+        Query meteoblue dataset api asynchronously, transfer data using protobuf and
+        return a structured object
 
         :param params:
             query parameters,
@@ -174,11 +175,15 @@ class Client(object):
         """
 
         params["format"] = "protobuf"
-
+        cached_query_results = self.cache.get_cached_query_results(params)
+        if cached_query_results:
+            return cached_query_results
         async with self.queryRaw(params) as response:
             data = await response.read()
             msg = DatasetApiProtobuf()
             msg.ParseFromString(data)
+            # todo move to a couroutine
+            self.cache.store_query_results(params, msg)
             return msg
 
     def querySync(self, params: dict):
