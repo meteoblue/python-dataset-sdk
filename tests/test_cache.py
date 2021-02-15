@@ -84,7 +84,7 @@ class TestAsyncCaching(IsolatedAsyncioTestCase):
                 "energy": "watts",
             }
         }
-        data ={"key": "value"}
+        data = {"key": "value"}
 
         await cache.store_query_results(params, data=str(data))
         self.assertEqual(len(cache.cached_files), 1)
@@ -93,7 +93,6 @@ class TestAsyncCaching(IsolatedAsyncioTestCase):
         ) as f:
             content = await f.read()
             self.assertEqual(content, str(data))
-
 
     async def asyncTearDown(self):
         await Cache().delete_expired_caches()
