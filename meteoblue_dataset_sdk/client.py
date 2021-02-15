@@ -176,15 +176,14 @@ class Client(object):
         """
 
         params["format"] = "protobuf"
-        cached_query_results = self.cache.get_query_results(params)
+        cached_query_results = await self.cache.get_query_results(params)
         if cached_query_results:
             return cached_query_results
         async with self.queryRaw(params) as response:
             data = await response.read()
             msg = DatasetApiProtobuf()
             msg.ParseFromString(data)
-            # todo move to a couroutine
-            self.cache.store_query_results(params, msg)
+            await self.cache.store_query_results(params, msg)
             return msg
 
     def querySync(self, params: dict):

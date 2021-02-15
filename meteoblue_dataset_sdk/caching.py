@@ -18,28 +18,26 @@ class Cache:
         self.cache_ttl = cache_ttl
         self.cached_files = self._get_cached_files_list()
 
-    def store_query_results(self, params: dict, data):
+    async def store_query_results(self, params: dict, data):
         query_hash = self._hash_params(params)
         if self._get_valid_cached_queries(query_hash):
             return
         ts_as_key = round(datetime.datetime.now().timestamp())
         query_cache_filename = f"{query_hash}_{ts_as_key}"
         query_cache_file = os.path.join(self.cache_path, query_cache_filename)
-        with open(query_cache_file, "x") as file:
-            # todo: async
-            file.write(data)
+        async with open(query_cache_file, "x") as file:
+            await file.write(data)
         self.cached_files.append(query_cache_filename)
 
-    def get_query_results(self, params: dict):
+    async def get_query_results(self, params: dict):
         query_hash = self._hash_params(params)
         valid_caches = self._get_valid_cached_queries(query_hash)
         if not valid_caches:
             return
         try:
             most_recent_key = valid_caches[0]
-            with open(os.path.join(self.cache_path, most_recent_key), "r") as file:
-                print(file.read())
-                return file.read()
+            async with open(os.path.join(self.cache_path, most_recent_key), "r") as f:
+                return await f.read()
         except FileNotFoundError:
             print(valid_caches[0], "not found")
             return
