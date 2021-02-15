@@ -1,4 +1,3 @@
-import json
 import os
 import unittest
 from unittest import IsolatedAsyncioTestCase, mock
@@ -40,7 +39,6 @@ class TestCache(unittest.TestCase):
         valid_ts = int(kwargs.get("mock_valid_cache").time_to_freeze.timestamp())
         mock_listdir.return_value = [f"somehash_{expired_ts}", f"somehash_{valid_ts}"]
         self.assertEqual([f"somehash_{valid_ts}"], cache._get_cached_files_list())
-        self.assertEqual([f"somehash_{valid_ts}"], cache.cached_files)
 
 
 class TestAsyncCaching(IsolatedAsyncioTestCase):
@@ -86,16 +84,19 @@ class TestAsyncCaching(IsolatedAsyncioTestCase):
                 "energy": "watts",
             }
         }
-        data = json.dumps({"key": "value"})
+        data ={"key": "value"}
 
         await cache.store_query_results(params, data=str(data))
         self.assertEqual(len(cache.cached_files), 1)
-        print(cache.cached_files)
         async with aiofiles.open(
             os.path.join("/tmp/mb_cache", cache.cached_files[0])
         ) as f:
             content = await f.read()
             self.assertEqual(content, str(data))
+
+
+    async def asyncTearDown(self):
+        await Cache().delete_expired_caches()
 
     # @freeze_time("2020-01-01 12:00:00", as_arg="mock_ts")
     # @mock.patch("meteoblue_dataset_sdk.caching.Cache._get_valid_cached_queries")
