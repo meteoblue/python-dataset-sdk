@@ -14,4 +14,5 @@ def lint(session):
 @nox.session
 def tests(session):
     session.install(".[test]")
+    session.install("-r", './requirements.txt')
     session.run("pytest", "-v")
