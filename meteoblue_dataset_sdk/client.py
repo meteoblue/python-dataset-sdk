@@ -78,6 +78,7 @@ class Client(object):
                 # return if successful
                 if 200 <= response.status <= 299:
                     yield response
+                    return
 
                 # meteoblue APIs return a JSON encoded error message
                 if response.status == 400 or response.status == 500:
