@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager
 
 import aiohttp
 
-from .caching import DEFAULT_CACHE_DURATION, Cache
 from .Dataset_pb2 import DatasetApiProtobuf
 from .utils import run_async
 
@@ -30,7 +29,6 @@ class ClientConfig(object):
         # other config
         self.apikey = apikey
         self.queueRetrySleepDuration = 5
-        self.cleaning_interval = DEFAULT_CACHE_DURATION * 2
 
 
 class Error(Exception):
@@ -51,9 +49,9 @@ class ApiError(Error):
 
 
 class Client(object):
-    def __init__(self, apikey: str):
+    def __init__(self, apikey: str, cache=None):
         self._config = ClientConfig(apikey)
-        self.cache = Cache()
+        self.cache = cache
 
     @asynccontextmanager
     async def _fetch(
@@ -177,14 +175,20 @@ class Client(object):
         """
 
         params["format"] = "protobuf"
-        cached_query_results = await self.cache.get_query_results(params)
-        if cached_query_results:
-            return cached_query_results
+        if self.cache:
+            cached_query_results = await self.cache.get(params)
+            print("cacched res", cached_query_results)
+            if cached_query_results:
+                msg = DatasetApiProtobuf()
+                msg.ParseFromString(cached_query_results)
+                print("cached msg")
+                return msg
         async with self.queryRaw(params) as response:
             data = await response.read()
+            if self.cache:
+                await self.cache.set(params, data)
             msg = DatasetApiProtobuf()
             msg.ParseFromString(data)
-            await self.cache.store_query_results(params, msg)
             return msg
 
     def querySync(self, params: dict):
