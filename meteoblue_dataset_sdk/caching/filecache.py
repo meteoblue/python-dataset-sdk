@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import tempfile
 
@@ -26,47 +27,35 @@ class FileCache(Cache):
     async def set(self, query_params, value):
         if not query_params:
             return
-        hashed_params = self._params_to_hash(query_params)
-        file_name = str(round(datetime.datetime.now().timestamp()))
-        query_dir_path = os.path.join(self.cache_path, hashed_params)
-        if not os.path.exists(query_dir_path):
-            await aios.mkdir(query_dir_path)
-        if self._get_latest_cached_file(query_dir_path):
+        dir_name, file_name = self._params_to_path_names(query_params)
+        dir_path = os.path.join(self.cache_path, dir_name)
+        file_path = os.path.join(dir_path, file_name)
+
+        if not os.path.exists(dir_path):
+            await aios.mkdir(dir_path)
+        if os.path.exists(file_path) and self._is_cached_file_valid(file_path):
             return
-        temp_file_path = os.path.join(query_dir_path, f"{file_name}~")
+        temp_file_path = f"{file_path}~"
         async with aiofiles.open(temp_file_path, "wb") as file:
             await file.write(value)
-        await aios.rename(temp_file_path, temp_file_path.rstrip("~"))
+        await aios.rename(temp_file_path, file_path)
 
     async def get(self, query_params):
         if not query_params:
             return
-        query_hash = self._params_to_hash(query_params)
-        query_dir_path = os.path.join(self.cache_path, query_hash)
-        if not os.path.exists(query_dir_path):
-            return
-        most_recent_file = self._get_latest_cached_file(query_dir_path)
-        if not most_recent_file:
+        dir_name, file_name = self._params_to_path_names(query_params)
+        file_path = os.path.join(self.cache_path, dir_name, file_name)
+        if not os.path.exists(file_path):
             return
         try:
-            most_recent_file_path = os.path.join(query_dir_path, most_recent_file)
-            async with aiofiles.open(most_recent_file_path, "rb") as f:
+            async with aiofiles.open(file_path, "rb") as f:
                 return await f.read()
-        except FileNotFoundError:
-            print(os.path.join(self.cache_path, most_recent_file), "not found")
+        except (OSError, IOError) as e:
+            logging.error(f"error while reading the file {file_path}", e)
             return
 
-    def _is_cached_query_valid(self, timestamp: str):
-        key_as_datetime = datetime.datetime.fromtimestamp(int(timestamp))
-        cache_duration = datetime.datetime.now() - key_as_datetime
+    def _is_cached_file_valid(self, file_path: str):
+        file_modification_timestamp = int(os.path.getmtime(file_path))
+        ts_as_datetime = datetime.datetime.fromtimestamp(file_modification_timestamp)
+        cache_duration = datetime.datetime.now() - ts_as_datetime
         return cache_duration.seconds < self.cache_ttl
-
-    def _get_latest_cached_file(self, dir_path: str):
-        cached_files = [
-            file
-            for file in os.listdir(dir_path)
-            if not file.find("~") and self._is_cached_query_valid(file)
-        ]
-        if not cached_files:
-            return
-        return max(cached_files)

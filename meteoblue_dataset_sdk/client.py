@@ -177,11 +177,9 @@ class Client(object):
         params["format"] = "protobuf"
         if self.cache:
             cached_query_results = await self.cache.get(params)
-            print("cacched res", cached_query_results)
             if cached_query_results:
                 msg = DatasetApiProtobuf()
                 msg.ParseFromString(cached_query_results)
-                print("cached msg")
                 return msg
         async with self.queryRaw(params) as response:
             data = await response.read()

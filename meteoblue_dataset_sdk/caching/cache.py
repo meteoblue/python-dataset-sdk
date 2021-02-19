@@ -14,6 +14,9 @@ class Cache(ABC):
         pass
 
     @staticmethod
-    def _params_to_hash(query_params: dict):
+    def _params_to_path_names(query_params: dict):
         params_encoded = json.dumps(query_params).encode()
-        return hashlib.md5(params_encoded).hexdigest()
+        hexdigest = hashlib.md5(params_encoded).hexdigest()
+        dir_name = hexdigest[:4]
+        file_name = hexdigest[4:]
+        return dir_name, file_name
