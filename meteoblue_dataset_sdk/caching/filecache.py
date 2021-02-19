@@ -19,7 +19,7 @@ class FileCache(Cache):
             cache_path = tempfile.gettempdir()
         cache_path = os.path.join(cache_path, CACHE_DIR)
         if not os.path.exists(cache_path):
-            os.mkdir(cache_path)
+            os.makedirs(cache_path)
 
         self.cache_path = cache_path
         self.cache_ttl = cache_ttl
@@ -45,7 +45,7 @@ class FileCache(Cache):
             return
         dir_name, file_name = self._params_to_path_names(query_params)
         file_path = os.path.join(self.cache_path, dir_name, file_name)
-        if not os.path.exists(file_path):
+        if not os.path.exists(file_path) or not self._is_cached_file_valid(file_path):
             return
         try:
             async with aiofiles.open(file_path, "rb") as f:

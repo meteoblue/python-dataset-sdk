@@ -1,122 +1,103 @@
 import os
+import shutil
+import tempfile
 import unittest
 from unittest import IsolatedAsyncioTestCase, mock
 
-import aiofiles
 from freezegun import freeze_time
 
-from meteoblue_dataset_sdk.caching import Cache
+from meteoblue_dataset_sdk.caching import Cache, FileCache
 
 
 class TestCache(unittest.TestCase):
-    def test_hash_params(self):
-        cache = Cache()
+    def test__params_to_path_names(self):
+        self.assertIsNone(Cache._params_to_path_names({}))
         self.assertEqual(
-            "c06d4357174f0eb882003a868b93909a", cache._hash_params({"param1": 32})
+            Cache._params_to_path_names({"key": "value"}),
+            ("88ba", "c95f31528d13a072c05f2a1cf371"),
         )
 
-    @mock.patch("os.listdir")
-    @mock.patch("os.mkdir")
-    @mock.patch("tempfile.gettempdir")
-    def test_cache_path(self, path_mock, mkdir_mock, mock_listdir):
-        path_mock.return_value = "/somewhere"
-        mock_listdir.return_value = []
-        cache = Cache()
-        self.assertEqual(cache.cache_path, "/somewhere/mb_cache")
-        cache = Cache(cache_path="/tmp")
-        self.assertEqual(cache.cache_path, "/tmp/mb_cache")
 
-    @freeze_time("2020-01-01 06:00:00", as_kwarg="mock_expired_cache")
-    @freeze_time("2020-01-01 11:58:00", as_kwarg="mock_valid_cache")
-    @freeze_time("2020-01-01 12:00:00", as_kwarg="mock_now")
-    @mock.patch("os.listdir")
-    def test_get_cached_files_list(self, mock_listdir, **kwargs):
-        mock_listdir.return_value = []
-        cache = Cache()
-        self.assertEqual([], cache._get_cached_files_list())
-
-        expired_ts = int(kwargs.get("mock_expired_cache").time_to_freeze.timestamp())
-        valid_ts = int(kwargs.get("mock_valid_cache").time_to_freeze.timestamp())
-        mock_listdir.return_value = [f"somehash_{expired_ts}", f"somehash_{valid_ts}"]
-        self.assertEqual([f"somehash_{valid_ts}"], cache._get_cached_files_list())
-
-
-class TestAsyncCaching(IsolatedAsyncioTestCase):
-    async def test_no_get_query_results(self):
-        cache = Cache()
-        no_param = await cache.get_query_results({})
-        self.assertEqual(None, no_param)
-
-        query_results_not_stored = await cache.get_query_results(
-            {
-                "units": {
-                    "temperature": "C",
-                    "velocity": "km/h",
-                    "length": "metric",
-                    "energy": "watts",
+class TestFileCache(IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.params = {
+            "units": {
+                "temperature": "C",
+                "velocity": "km/h",
+                "length": "metric",
+                "energy": "watts",
+            },
+            "geometry": {
+                "type": "MultiPoint",
+                "coordinates": [[7.57327, 47.558399, 279]],
+                "locationNames": ["Basel"],
+            },
+            "format": "json",
+            "timeIntervals": ["2019-01-01T+00:00/2019-01-01T+00:00"],
+            "timeIntervalsAlignment": "none",
+            "queries": [
+                {
+                    "domain": "NEMSGLOBAL",
+                    "gapFillDomain": None,
+                    "timeResolution": "hourly",
+                    "codes": [{"code": 11, "level": "2 m above gnd"}],
                 }
-            }
+            ],
+        }
+
+        self.cache_path = os.path.join(tempfile.gettempdir(), "mb_cache")
+        if not os.path.exists(self.cache_path):
+            os.mkdir(self.cache_path)
+        self.dir_hash = "f4eb"
+        self.file_hash = "b32678055481aa33398a8a7afaa5"
+        self.dir_path = os.path.join(tempfile.gettempdir(), "mb_cache", self.dir_hash)
+        self.file_path = os.path.join(
+            tempfile.gettempdir(), "mb_cache", self.dir_hash, self.file_hash
         )
-        self.assertEqual(None, query_results_not_stored)
 
-    async def test_get_query_results_integration(self):
-        cache = Cache(cache_path="/tmp/")
-        params = {
-            "units": {
-                "temperature": "C",
-                "velocity": "km/h",
-                "length": "metric",
-                "energy": "watts",
-            }
-        }
-        data = {"key": "value"}
-        await cache.store_query_results(params, data=str(data))
-        cached_results = await cache.get_query_results(params)
-        self.assertEqual(cached_results, str(data))
+    def test_path(self):
+        file_cache = FileCache()
+        self.assertEqual(
+            file_cache.cache_path, os.path.join(tempfile.gettempdir(), "mb_cache")
+        )
+        file_cache = FileCache(cache_path="/tmp/test_cache")
+        self.assertEqual(file_cache.cache_path, "/tmp/test_cache/mb_cache")
 
-    async def test_store_query_results_integration(self):
-        cache = Cache(cache_path="/tmp/")
-        params = {
-            "units": {
-                "temperature": "C",
-                "velocity": "km/h",
-                "length": "metric",
-                "energy": "watts",
-            }
-        }
-        data = {"key": "value"}
+    @freeze_time("2020-01-01 11:59:00", as_kwarg="valid_ts")
+    @freeze_time("2020-01-01 06:00:00", as_kwarg="expired_ts")
+    @freeze_time("2020-01-01 12:00:00", as_kwarg="mock_now")
+    @mock.patch("os.path.getmtime")
+    def test__is_cached_file_valid(self, mock_getmtime, **kwargs):
+        mock_getmtime.return_value = kwargs.get("valid_ts").time_to_freeze.timestamp()
+        file_cache = FileCache()
+        self.assertTrue(file_cache._is_cached_file_valid("somepath"))
+        mock_getmtime.return_value = kwargs.get("expired_ts").time_to_freeze.timestamp()
+        file_cache = FileCache()
+        self.assertFalse(file_cache._is_cached_file_valid("somepath"))
 
-        await cache.store_query_results(params, data=str(data))
-        self.assertEqual(len(cache.cached_files), 1)
-        async with aiofiles.open(
-            os.path.join("/tmp/mb_cache", cache.cached_files[0])
-        ) as f:
-            content = await f.read()
-            self.assertEqual(content, str(data))
+    @mock.patch("meteoblue_dataset_sdk.caching.FileCache._is_cached_file_valid")
+    async def test_get(self, mock__is_cached_file_valid):
 
-    async def asyncTearDown(self):
-        await Cache().delete_expired_caches()
+        os.mkdir(self.dir_path)
+        with open(self.file_path, "wb") as file:
+            file.write(bytes('{"response": "data"}', "utf-8"))
 
-    # @freeze_time("2020-01-01 12:00:00", as_arg="mock_ts")
-    # @mock.patch("meteoblue_dataset_sdk.caching.Cache._get_valid_cached_queries")
-    # @mock.patch("aiofiles.open")
-    # async def test_get_query_results(
-    #     self, mock_aio_open, mock_get_valid_cached_queries, mock_ts
-    # ):
-    #     ts = int(mock_ts.get("mock_expired_cache").time_to_freeze.timestamp())
-    #     params = {
-    #         "units": {
-    #             "temperature": "C",
-    #             "velocity": "km/h",
-    #             "length": "metric",
-    #             "energy": "watts",
-    #         }
-    #     }
-    #     data = {"key": "value"}
-    #     filename = f"{Cache._hash_params(params)}_{ts}"
-    #     mock_get_valid_cached_queries = [
-    #         filename,
-    #     ]
-    #     cache = Cache(cache_path="/tmp/")
-    #     mock_aio_open = mock.mock_open(read_data=str(data))
-    #     print(await cache.get_query_results(params))
+        mock__is_cached_file_valid.return_value = True
+        file_cache = FileCache()
+        self.assertEqual(await file_cache.get(self.params), b'{"response": "data"}')
+        mock__is_cached_file_valid.assert_called_with(
+            f"{tempfile.gettempdir()}/mb_cache/{self.dir_hash}/{self.file_hash}"
+        )
+
+    @mock.patch("meteoblue_dataset_sdk.caching.FileCache._is_cached_file_valid")
+    async def test_set(self, mock__is_cached_file_valid):
+        mock__is_cached_file_valid.return_value = False
+        file_cache = FileCache()
+        await file_cache.set(self.params, bytes('{"someData": "superData"}', "utf-8"))
+        with open(self.file_path, "rb") as file:
+            self.assertEqual(file.read(), b'{"someData": "superData"}')
+
+    def tearDown(self):
+        if os.path.exists(self.cache_path):
+            shutil.rmtree(self.cache_path, ignore_errors=True)
+        super(TestFileCache, self).tearDown()

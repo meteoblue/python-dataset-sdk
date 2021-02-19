@@ -1,7 +1,7 @@
 import nox
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def lint(session):
     lint_tools = ["flake8", "black", "isort"]
     targets = ["meteoblue_dataset_sdk", "tests", "noxfile.py"]
