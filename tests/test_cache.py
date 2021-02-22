@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 from unittest import IsolatedAsyncioTestCase, mock
-
+import zlib
 from freezegun import freeze_time
 
 from meteoblue_dataset_sdk.caching import Cache, FileCache
@@ -14,7 +14,7 @@ class TestCache(unittest.TestCase):
         self.assertIsNone(Cache._params_to_path_names({}))
         self.assertEqual(
             Cache._params_to_path_names({"key": "value"}),
-            ("88ba", "c95f31528d13a072c05f2a1cf371"),
+            ("88b", "ac95f31528d13a072c05f2a1cf371"),
         )
 
 
@@ -48,8 +48,8 @@ class TestFileCache(IsolatedAsyncioTestCase):
         self.cache_path = os.path.join(tempfile.gettempdir(), "mb_cache")
         if not os.path.exists(self.cache_path):
             os.mkdir(self.cache_path)
-        self.dir_hash = "f4eb"
-        self.file_hash = "b32678055481aa33398a8a7afaa5"
+        self.dir_hash = "f4e"
+        self.file_hash = "bb32678055481aa33398a8a7afaa5"
         self.dir_path = os.path.join(tempfile.gettempdir(), "mb_cache", self.dir_hash)
         self.file_path = os.path.join(
             tempfile.gettempdir(), "mb_cache", self.dir_hash, self.file_hash
@@ -80,7 +80,7 @@ class TestFileCache(IsolatedAsyncioTestCase):
 
         os.mkdir(self.dir_path)
         with open(self.file_path, "wb") as file:
-            file.write(bytes('{"response": "data"}', "utf-8"))
+            file.write(zlib.compress(bytes('{"response": "data"}', "utf-8")))
 
         mock__is_cached_file_valid.return_value = True
         file_cache = FileCache()
@@ -95,7 +95,7 @@ class TestFileCache(IsolatedAsyncioTestCase):
         file_cache = FileCache()
         await file_cache.set(self.params, bytes('{"someData": "superData"}', "utf-8"))
         with open(self.file_path, "rb") as file:
-            self.assertEqual(file.read(), b'{"someData": "superData"}')
+            self.assertEqual(zlib.decompress(file.read()), b'{"someData": "superData"}')
 
     def tearDown(self):
         if os.path.exists(self.cache_path):
