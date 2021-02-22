@@ -5,11 +5,12 @@ import unittest
 import zlib
 
 from freezegun import freeze_time
+from later.unittest import mock
 
-from meteoblue_dataset_sdk.caching import Cache, FileCache
 # until we upgrade to >=3.8
 from later.unittest.backport.async_case import IsolatedAsyncioTestCase
-from later.unittest import mock
+
+from meteoblue_dataset_sdk.caching import Cache, FileCache
 
 
 class TestCache(unittest.TestCase):
