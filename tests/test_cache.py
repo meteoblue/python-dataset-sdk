@@ -2,8 +2,9 @@ import os
 import shutil
 import tempfile
 import unittest
-from unittest import IsolatedAsyncioTestCase, mock
 import zlib
+from unittest import IsolatedAsyncioTestCase, mock
+
 from freezegun import freeze_time
 
 from meteoblue_dataset_sdk.caching import Cache, FileCache
