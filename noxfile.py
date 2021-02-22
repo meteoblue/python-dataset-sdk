@@ -11,7 +11,7 @@ def lint(session):
     session.run("flake8", *targets)
 
 
-@nox.session(reuse_venv=True)
+@nox.session()
 def tests(session):
     session.install("-r", "./requirements.txt")
     session.run("pytest", "-v")
