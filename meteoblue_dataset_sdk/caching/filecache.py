@@ -2,10 +2,11 @@ import datetime
 import logging
 import os
 import tempfile
+import zlib
 
 import aiofiles
 from aiofiles import os as aios
-import zlib
+
 from .cache import Cache
 
 CACHE_DIR = "mb_cache"
@@ -14,7 +15,9 @@ DEFAULT_CACHE_DURATION = 7200
 
 
 class FileCache(Cache):
-    def __init__(self, cache_path=None, cache_ttl=DEFAULT_CACHE_DURATION, compression_level=6):
+    def __init__(
+        self, cache_path=None, cache_ttl=DEFAULT_CACHE_DURATION, compression_level=6
+    ):
         if cache_path is None:
             cache_path = tempfile.gettempdir()
         cache_path = os.path.join(cache_path, CACHE_DIR)
@@ -37,9 +40,7 @@ class FileCache(Cache):
             return
         temp_file_path = f"{file_path}~"
         async with aiofiles.open(temp_file_path, "wb") as file:
-            await file.write(
-                zlib.compress(value, self.compression_level)
-            )
+            await file.write(zlib.compress(value, self.compression_level))
         await aios.rename(temp_file_path, file_path)
 
     async def get(self, query_params):
