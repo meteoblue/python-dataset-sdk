@@ -3,13 +3,13 @@ import shutil
 import tempfile
 import unittest
 import zlib
-from unittest import mock
 
 from freezegun import freeze_time
 
 from meteoblue_dataset_sdk.caching import Cache, FileCache
 # until we upgrade to >=3.8
 from later.unittest.backport.async_case import IsolatedAsyncioTestCase
+from later.unittest import mock
 
 
 class TestCache(unittest.TestCase):
