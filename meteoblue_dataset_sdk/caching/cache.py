@@ -18,6 +18,6 @@ class Cache(ABC):
             return
         params_encoded = json.dumps(query_params).encode()
         hexdigest = hashlib.md5(params_encoded).hexdigest()
-        dir_name = hexdigest[:2]
-        file_name = hexdigest[2:]
+        dir_name = hexdigest[:3]
+        file_name = hexdigest[3:]
         return dir_name, file_name
