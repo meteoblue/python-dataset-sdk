@@ -1,12 +1,11 @@
 import hashlib
 import json
 from abc import ABC, abstractmethod
-from typing import ByteString
 
 
 class Cache(ABC):
     @abstractmethod
-    def set(self, query_params: dict, value: ByteString):
+    def set(self, query_params: dict, value: bytes):
         pass
 
     @abstractmethod
@@ -19,6 +18,6 @@ class Cache(ABC):
             return
         params_encoded = json.dumps(query_params).encode()
         hexdigest = hashlib.md5(params_encoded).hexdigest()
-        dir_name = hexdigest[:4]
-        file_name = hexdigest[4:]
+        dir_name = hexdigest[:2]
+        file_name = hexdigest[2:]
         return dir_name, file_name

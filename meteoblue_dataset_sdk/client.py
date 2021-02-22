@@ -74,7 +74,7 @@ class Client(object):
         for retry in range(self._config.httpMaxRetryCount):
             async with session.request(method, url, json=json) as response:
                 # return if successful
-                if 200 <= response.status <= 299:
+                if response.ok:
                     yield response
                     return
 
