@@ -11,8 +11,10 @@ colorlog==4.7.2
 decorator==4.4.2
 distlib==0.3.1
 filelock==3.0.12
+freezegun==1.1.0
 idna==3.1
 iniconfig==1.1.1
+ipython==7.20.0
 ipython-genutils==0.2.0
 jedi==0.18.0
 later==20.10.1
@@ -30,6 +32,7 @@ py==1.10.0
 Pygments==2.8.0
 pyparsing==2.4.7
 pytest==6.2.2
+python-dateutil==2.8.1
 six==1.15.0
 toml==0.10.2
 traitlets==5.0.5
