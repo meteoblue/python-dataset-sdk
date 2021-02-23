@@ -1,9 +1,9 @@
+import meteoblue_dataset_sdk
+
 import asyncio
 import logging
 import os
 import unittest
-
-import meteoblue_dataset_sdk
 
 
 class Test_TestQuery(unittest.TestCase):
@@ -14,7 +14,9 @@ class Test_TestQuery(unittest.TestCase):
         client = meteoblue_dataset_sdk.Client("invalid_api_key")
         with self.assertRaises(meteoblue_dataset_sdk.ApiError):
             result = asyncio.run(client.query({"invalid": "query"}))
-            self.assertEqual(result, "API returned error message: Value required for key 'geometry'.")
+            self.assertEqual(
+                result, "API returned error message: Value required for key 'geometry'."
+            )
 
     def test_simple_query(self):
         query = {

@@ -1,7 +1,8 @@
+from meteoblue_dataset_sdk.caching import FileCache
+
 import os
 import shutil
 import tempfile
-import unittest
 import zlib
 
 from freezegun import freeze_time
@@ -9,17 +10,6 @@ from later.unittest import mock
 
 # until we upgrade to >=3.8
 from later.unittest.backport.async_case import IsolatedAsyncioTestCase
-
-from meteoblue_dataset_sdk.caching import Cache, FileCache
-
-
-class TestCache(unittest.TestCase):
-    def test__params_to_path_names(self):
-        self.assertIsNone(Cache._params_to_path_names({}))
-        self.assertEqual(
-            Cache._params_to_path_names({"key": "value"}),
-            ("88b", "ac95f31528d13a072c05f2a1cf371"),
-        )
 
 
 class TestFileCache(IsolatedAsyncioTestCase):
@@ -57,6 +47,13 @@ class TestFileCache(IsolatedAsyncioTestCase):
         self.dir_path = os.path.join(tempfile.gettempdir(), "mb_cache", self.dir_hash)
         self.file_path = os.path.join(
             tempfile.gettempdir(), "mb_cache", self.dir_hash, self.file_hash
+        )
+
+    def test__params_to_path_names(self):
+        self.assertIsNone(FileCache._params_to_path_names({}))
+        self.assertEqual(
+            FileCache._params_to_path_names({"key": "value"}),
+            ("88b", "ac95f31528d13a072c05f2a1cf371"),
         )
 
     def test_path(self):

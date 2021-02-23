@@ -1,17 +1,26 @@
 import nox
 
+TARGETS = ["meteoblue_dataset_sdk", "tests", "noxfile.py"]
+
 
 @nox.session(reuse_venv=True)
 def lint(session):
-    lint_tools = ["flake8", "black", "isort"]
-    targets = ["meteoblue_dataset_sdk", "tests", "noxfile.py"]
+    lint_tools = ["flake8", "isort"]
     session.install(*lint_tools)
-    session.run("isort", *targets)
-    session.run("black", *targets)
-    session.run("flake8", *targets)
+    session.run("isort", *TARGETS)
+    session.run("flake8", *TARGETS)
 
 
-@nox.session()
+@nox.session(reuse_venv=True)
+def lint_dev(session):
+    lint_tools = ["flake8", "black", "isort"]
+    session.install(*lint_tools)
+    session.run("isort", "-f", *TARGETS)
+    session.run("black", *TARGETS)
+    session.run("flake8", *TARGETS)
+
+
+@nox.session(reuse_venv=True)
 def tests(session):
     session.install("-r", "./requirements.txt")
     session.run("pytest", "-v")
