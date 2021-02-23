@@ -80,6 +80,16 @@ client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
 result = await client.query(query)
 ```
 
+You can use cache by passing a Cache object to the Client. There is a `caching.filecache.FileCache` class implemented
+in in the meteoblue_dataset_sdk, but you can use your own implementation by using the abstract 
+class `caching.cache.Cache`
+
+```python
+from meteoblue_dataset_sdk.caching import FileCache
+cache = FileCache(cache_path="/tmp")
+client = meteoblue_dataset_sdk.Client(apikey="xxxxxx", cache=cache)
+```
+
 ## Protobuf format
 Data is transferred using protobuf and defined as [this protobuf structure](./meteoblue_dataset_sdk/Dataset.proto).
 

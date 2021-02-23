@@ -64,11 +64,12 @@ class TestFileCache(IsolatedAsyncioTestCase):
         file_cache = FileCache(cache_path="/tmp/test_cache")
         self.assertEqual(file_cache.cache_path, "/tmp/test_cache/mb_cache")
 
+    @mock.patch("os.path.exists", return_value=True)
     @freeze_time("2020-01-01 11:59:00", as_kwarg="valid_ts")
     @freeze_time("2020-01-01 06:00:00", as_kwarg="expired_ts")
     @freeze_time("2020-01-01 12:00:00", as_kwarg="mock_now")
     @mock.patch("os.path.getmtime")
-    def test__is_cached_file_valid(self, mock_getmtime, **kwargs):
+    def test__is_cached_file_valid(self, mock_getmtime, mock_path_exists, **kwargs):
         mock_getmtime.return_value = kwargs.get("valid_ts").time_to_freeze.timestamp()
         file_cache = FileCache()
         self.assertTrue(file_cache._is_cached_file_valid("somepath"))

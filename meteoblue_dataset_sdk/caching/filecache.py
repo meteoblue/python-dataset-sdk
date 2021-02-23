@@ -5,7 +5,7 @@ import logging
 import os
 import tempfile
 import zlib
-from typing import Union
+from typing import Union, Optional
 
 import aiofiles
 from aiofiles import os as aios
@@ -20,7 +20,7 @@ DEFAULT_CACHE_DURATION = 7200
 class FileCache(Cache):
     def __init__(
         self,
-        cache_path: str = None,
+        cache_path: Optional[str] = None,
         cache_ttl: int = DEFAULT_CACHE_DURATION,
         compression_level: int = 6,
     ):
