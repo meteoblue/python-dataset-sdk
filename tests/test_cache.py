@@ -62,20 +62,23 @@ class TestFileCache(IsolatedAsyncioTestCase):
             file_cache.cache_path, os.path.join(tempfile.gettempdir(), "mb_cache")
         )
         file_cache = FileCache(cache_path="/tmp/test_cache")
-        self.assertEqual(file_cache.cache_path, "/tmp/test_cache/mb_cache")
+        self.assertEqual("/tmp/test_cache", file_cache.cache_path)
 
     @mock.patch("os.path.exists", return_value=True)
-    @freeze_time("2020-01-01 11:59:00", as_kwarg="valid_ts")
-    @freeze_time("2020-01-01 06:00:00", as_kwarg="expired_ts")
-    @freeze_time("2020-01-01 12:00:00", as_kwarg="mock_now")
-    @mock.patch("os.path.getmtime")
-    def test__is_cached_file_valid(self, mock_getmtime, mock_path_exists, **kwargs):
-        mock_getmtime.return_value = kwargs.get("valid_ts").time_to_freeze.timestamp()
+    @mock.patch("aiofiles.os.stat")
+    async def test__is_cached_file_valid(self, mock_stat, mock_path_exists):
         file_cache = FileCache()
-        self.assertTrue(file_cache._is_cached_file_valid("somepath"))
-        mock_getmtime.return_value = kwargs.get("expired_ts").time_to_freeze.timestamp()
-        file_cache = FileCache()
-        self.assertFalse(file_cache._is_cached_file_valid("somepath"))
+        with freeze_time("2020-01-01 12:00:00"):
+            mock_stat.return_value.st_mtime = freeze_time(
+                "2020-01-01 11:59:00"
+            ).time_to_freeze.timestamp()
+            self.assertTrue(await file_cache._is_cached_file_valid("somepath"))
+
+        with freeze_time("2020-01-01 12:00:00"):
+            mock_stat.return_value.st_mtime = freeze_time(
+                "2020-01-01 06:00:00"
+            ).time_to_freeze.timestamp()
+            self.assertFalse(await file_cache._is_cached_file_valid("somepath"))
 
     @mock.patch("meteoblue_dataset_sdk.caching.FileCache._is_cached_file_valid")
     async def test_get(self, mock__is_cached_file_valid):

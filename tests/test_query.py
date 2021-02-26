@@ -6,7 +6,7 @@ import os
 import unittest
 
 
-class Test_TestQuery(unittest.TestCase):
+class TestQuery(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
 

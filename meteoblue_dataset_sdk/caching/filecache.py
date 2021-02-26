@@ -8,25 +8,32 @@ import zlib
 from typing import Union, Optional
 
 import aiofiles
-from aiofiles import os as aios
+import aiofiles.os
 
-from .cache import Cache
+from .abstractcache import AbstractCache
 
 CACHE_DIR = "mb_cache"
 # 7200s == 2h
 DEFAULT_CACHE_DURATION = 7200
 
 
-class FileCache(Cache):
+class FileCache(AbstractCache):
     def __init__(
         self,
         cache_path: Optional[str] = None,
         cache_ttl: int = DEFAULT_CACHE_DURATION,
-        compression_level: int = 6,
+        compression_level: int = zlib.Z_DEFAULT_COMPRESSION,
     ):
+        """
+        Local file storage class
+        :param cache_path: Custom local cache storage path. Default to
+        /SYSTEM_TEMP_FOLDER/mb_cache
+        :param cache_ttl: Cache retention period in seconds
+        :param compression_level: Zlib compression level used the compressed the bytes
+        inputs
+        """
         if cache_path is None:
-            cache_path = tempfile.gettempdir()
-        cache_path = os.path.join(cache_path, CACHE_DIR)
+            cache_path = os.path.join(tempfile.gettempdir(), CACHE_DIR)
         if not os.path.exists(cache_path):
             os.makedirs(cache_path)
 
@@ -48,13 +55,13 @@ class FileCache(Cache):
         dir_path = os.path.join(self.cache_path, dir_name)
         file_path = os.path.join(dir_path, file_name)
         if not os.path.exists(dir_path):
-            await aios.mkdir(dir_path)
-        if self._is_cached_file_valid(file_path):
+            await aiofiles.os.mkdir(dir_path)
+        if await self._is_cached_file_valid(file_path):
             return
         temp_file_path = f"{file_path}~"
         async with aiofiles.open(temp_file_path, "wb") as file:
             await file.write(zlib.compress(value, self.compression_level))
-        await aios.rename(temp_file_path, file_path)
+        await aiofiles.os.rename(temp_file_path, file_path)
 
     async def get(self, query_params: dict) -> Union[None, bytes]:
         """
@@ -66,7 +73,7 @@ class FileCache(Cache):
             return
         dir_name, file_name = self._params_to_path_names(query_params)
         file_path = os.path.join(self.cache_path, dir_name, file_name)
-        if not self._is_cached_file_valid(file_path):
+        if not await self._is_cached_file_valid(file_path):
             return
         try:
             async with aiofiles.open(file_path, "rb") as f:
@@ -75,7 +82,7 @@ class FileCache(Cache):
             logging.error(f"error while reading the file {file_path}", e)
             return
 
-    def _is_cached_file_valid(self, file_path: str) -> bool:
+    async def _is_cached_file_valid(self, file_path: str) -> bool:
         """
         Verify if the given file is not expired
         :param file_path: path of the cached file: mb_cache/1sd/23btyqs5rfzm
@@ -83,7 +90,8 @@ class FileCache(Cache):
         """
         if not os.path.exists(file_path):
             return False
-        file_modification_timestamp = int(os.path.getmtime(file_path))
+        stats = await aiofiles.os.stat(file_path)
+        file_modification_timestamp = int(stats.st_mtime)
         ts_as_datetime = datetime.datetime.fromtimestamp(file_modification_timestamp)
         cache_duration = datetime.datetime.now() - ts_as_datetime
         return cache_duration.seconds < self.cache_ttl

@@ -82,11 +82,13 @@ result = await client.query(query)
 
 You can use cache by passing a Cache object to the Client. There is a `caching.filecache.FileCache` class implemented
 in in the meteoblue_dataset_sdk, but you can use your own implementation by using the abstract 
-class `caching.cache.Cache`
+class `caching.cache.AbstractCache`. You can customize the cache duration, the cache location
+and the zlib compression level used to compressed the binary data.
 
 ```python
+import zlib
 from meteoblue_dataset_sdk.caching import FileCache
-cache = FileCache(cache_path="/tmp")
+cache = FileCache(cache_path="/tmp/my_cache_dir", cache_ttl=4000, compression_level=zlib.Z_BEST_SPEED)
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx", cache=cache)
 ```
 

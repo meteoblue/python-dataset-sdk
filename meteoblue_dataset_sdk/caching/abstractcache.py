@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 
 
-class Cache(ABC):
+class AbstractCache(ABC):
     """
-    Base class for the Cache implementation. Provide common methods to be implemented
+    Abstract class for the Cache implementation.
+    Provide common methods to be implemented.
     """
 
     @abstractmethod
@@ -15,7 +16,7 @@ class Cache(ABC):
         :param value: The request data to store
         :return: None
         """
-        pass
+        raise NotImplementedError("Method must be implemented")
 
     @abstractmethod
     def get(self, query_params: dict) -> bytes:
@@ -25,4 +26,4 @@ class Cache(ABC):
         hashed with the same method used in self.set in order to be retrieved.
         :return: None if not found or the content of the file
         """
-        pass
+        raise NotImplementedError("Method must be implemented")
