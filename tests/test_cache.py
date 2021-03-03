@@ -1,5 +1,6 @@
 from meteoblue_dataset_sdk.caching import FileCache
 from meteoblue_dataset_sdk.client import Client
+
 import os
 import shutil
 import tempfile
@@ -50,7 +51,7 @@ class TestFileCache(IsolatedAsyncioTestCase):
         )
 
     def test__hash_to_paths(self):
-        self.assertEqual(FileCache._hash_to_paths(""),("",""))
+        self.assertEqual(FileCache._hash_to_paths(""), ("", ""))
         self.assertEqual(
             FileCache._hash_to_paths("88bac95f31528d13a072c05f2a1cf371"),
             ("88b", "ac95f31528d13a072c05f2a1cf371"),
