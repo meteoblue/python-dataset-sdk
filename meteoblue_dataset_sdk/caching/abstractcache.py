@@ -8,7 +8,7 @@ class AbstractCache(ABC):
     """
 
     @abstractmethod
-    def set(self, key: str, value: bytes):
+    def set(self, key: str, value: bytes) -> None:
         """
         Store the value in the cache
         :param key: Key used to store the value

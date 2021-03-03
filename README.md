@@ -88,7 +88,7 @@ and the zlib compression level used to compressed the binary data.
 ```python
 import zlib
 from meteoblue_dataset_sdk.caching import FileCache
-cache = FileCache(cache_path="/tmp/my_cache_dir", cache_ttl=4000, compression_level=zlib.Z_BEST_SPEED)
+cache = FileCache(path="/tmp/my_cache_dir", max_age=4000, compression_level=zlib.Z_BEST_SPEED)
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx", cache=cache)
 ```
 
