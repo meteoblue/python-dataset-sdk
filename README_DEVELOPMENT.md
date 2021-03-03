@@ -1,5 +1,8 @@
-# Linting and testing
-To run unit tests run:
-- `pip3 install nox`
-- `export APIKEY=xxxxxxx`
-- `nox`
+## Development Guide
+## Installation
+- `pip install -e .[dev]` or `pip install -e .\[dev\]`  if using `ZSH`
+## Linting 
+- `nox -s lint_dev`
+## Testing
+- `nox -s tests`
+

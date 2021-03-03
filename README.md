@@ -59,7 +59,7 @@ query = {
     ],
 }
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
-result = client.querySync(query)
+result = client.query_sync(query)
 # result is a structured object containing timestamps and data
 
 timeInterval = result.geometries[0].timeIntervals[0]
@@ -73,11 +73,23 @@ print(timeInterval)
 
 NOTE: `timeInterval.end` is the first timestamp that is not included anymore in the time interval.
 
-If your code is using `async/await`, you should use `await client.query()` instead of `client.querySync()`. Asynchronous IO is essential for modern webserver frameworks like Flask or FastAPI.
+If your code is using `async/await`, you should use `await client.query()` instead of `client.query_sync()`. Asynchronous IO is essential for modern webserver frameworks like Flask or FastAPI.
 
 ```python
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
 result = await client.query(query)
+```
+
+You can use cache by passing a Cache object to the Client. There is a `caching.filecache.FileCache` class implemented
+in in the meteoblue_dataset_sdk, but you can use your own implementation by using the abstract 
+class `caching.cache.AbstractCache`. You can customize the cache duration, the cache location
+and the zlib compression level used to compressed the binary data.
+
+```python
+import zlib
+from meteoblue_dataset_sdk.caching import FileCache
+cache = FileCache(path="/tmp/my_cache_dir", max_age=4000, compression_level=zlib.Z_BEST_SPEED)
+client = meteoblue_dataset_sdk.Client(apikey="xxxxxx", cache=cache)
 ```
 
 ## Protobuf format
