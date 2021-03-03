@@ -54,7 +54,12 @@ class TestFileCache(IsolatedAsyncioTestCase):
         self.assertIsNone(FileCache()._hash_to_path(""))
         self.assertEqual(
             FileCache()._hash_to_path("88bac95f31528d13a072c05f2a1cf371"),
-            Path(tempfile.gettempdir(),"mb_cache", "88b", "ac95f31528d13a072c05f2a1cf371"),
+            Path(
+                tempfile.gettempdir(),
+                "mb_cache",
+                "88b",
+                "ac95f31528d13a072c05f2a1cf371",
+            ),
         )
 
     def test_path(self):
