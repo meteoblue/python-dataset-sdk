@@ -59,7 +59,7 @@ query = {
     ],
 }
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")
-result = client.querySync(query)
+result = client.query_sync(query)
 # result is a structured object containing timestamps and data
 
 timeInterval = result.geometries[0].timeIntervals[0]
@@ -73,7 +73,7 @@ print(timeInterval)
 
 NOTE: `timeInterval.end` is the first timestamp that is not included anymore in the time interval.
 
-If your code is using `async/await`, you should use `await client.query()` instead of `client.querySync()`. Asynchronous IO is essential for modern webserver frameworks like Flask or FastAPI.
+If your code is using `async/await`, you should use `await client.query()` instead of `client.query_sync()`. Asynchronous IO is essential for modern webserver frameworks like Flask or FastAPI.
 
 ```python
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")

@@ -49,9 +49,7 @@ class FileCache(AbstractCache):
         """
         if not key:
             return
-        dir_name, file_name = self._hash_to_paths(key)
-        cache_file_path = Path(self.cache_path, dir_name, file_name)
-        # dir_path, file_path = cache_file_path.parent, cache_file_path.name
+        cache_file_path = self._hash_to_path(key)
 
         try:
             await aiofiles.os.stat(cache_file_path.parent)
@@ -68,8 +66,8 @@ class FileCache(AbstractCache):
     async def get(self, key: str) -> Optional[bytes]:
         if not key:
             return
-        dir_name, file_name = self._hash_to_paths(key)
-        file_path = Path(self.cache_path, dir_name, file_name)
+        file_path = self._hash_to_path(key)
+
         if not await self._is_cached_file_valid(file_path):
             return
         try:
@@ -88,12 +86,13 @@ class FileCache(AbstractCache):
         cache_duration = datetime.datetime.now() - ts_as_datetime
         return cache_duration.seconds < self.max_age
 
-    @staticmethod
-    def _hash_to_paths(key_hash: str) -> tuple:
+    def _hash_to_path(self, key_hash: str) -> Optional[Path]:
         """
         Split the hash in two part: the directory and the file.
         :param key_hash: Request parameters to use a key.
         :return: The first 3 characters of the hash as the directory name and the rest
         as the filename.
         """
-        return key_hash[:3], key_hash[3:]
+        if not key_hash:
+            return
+        return Path(self.cache_path, key_hash[:3], key_hash[3:])
