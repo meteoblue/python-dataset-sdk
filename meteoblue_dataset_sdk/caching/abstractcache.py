@@ -8,7 +8,7 @@ class AbstractCache(ABC):
     """
 
     @abstractmethod
-    def set(self, key: str, value: bytes) -> None:
+    async def set(self, key: str, value: bytes) -> None:
         """
         Store the value in the cache
         :param key: Key used to store the value
@@ -18,7 +18,7 @@ class AbstractCache(ABC):
         raise NotImplementedError("Method must be implemented")
 
     @abstractmethod
-    def get(self, key: str) -> bytes:
+    async def get(self, key: str) -> bytes:
         """
         Retrieve a value from the cache
         :param key: Key used to store the query to retrieve.
