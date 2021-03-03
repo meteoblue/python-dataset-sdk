@@ -22,5 +22,5 @@ def lint_dev(session):
 
 @nox.session(reuse_venv=True)
 def tests(session):
-    session.install("-r", "./requirements.txt")
+    session.install("-e", ".[dev]")
     session.run("pytest", "-v")

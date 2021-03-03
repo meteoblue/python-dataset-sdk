@@ -1,7 +1,6 @@
 ## Development Guide
 ## Installation
-- `pip install -r requirements.txt` 
-- Test the build in development mode `pip install -e .`
+- `pip install -e .[dev]` or `pip install -e .\[dev\]`  if using `ZSH`
 ## Linting 
 - `nox -s lint_dev`
 ## Testing
