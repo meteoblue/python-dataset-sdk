@@ -5,7 +5,8 @@ meteoblue dataset client
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-
+import hashlib
+import json
 import aiohttp
 
 from .Dataset_pb2 import DatasetApiProtobuf
@@ -176,15 +177,18 @@ class Client(object):
 
         params["format"] = "protobuf"
         if self.cache:
-            cached_query_results = await self.cache.get(params)
+            key = self._hash_params(params)
+            cached_query_results = await self.cache.get(key)
             if cached_query_results:
                 msg = DatasetApiProtobuf()
                 msg.ParseFromString(cached_query_results)
                 return msg
+
         async with self.queryRaw(params) as response:
             data = await response.read()
             if self.cache:
-                await self.cache.set(params, data)
+                key = self._hash_params(params)
+                await self.cache.set(key, data)
             msg = DatasetApiProtobuf()
             msg.ParseFromString(data)
             return msg
@@ -198,3 +202,8 @@ class Client(object):
         :return: DatasetApiProtobuf object
         """
         return run_async(self.query, params)
+
+    @staticmethod
+    def _hash_params(params: dict) -> str:
+        return hashlib.md5(json.dumps(params).encode()).hexdigest()
+

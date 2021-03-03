@@ -8,22 +8,20 @@ class AbstractCache(ABC):
     """
 
     @abstractmethod
-    def set(self, query_params: dict, value: bytes):
+    def set(self, key: str, value: bytes):
         """
         Store the value in the cache
-        :param query_params: query parameters of the query to be stored. Must be hashed
-        and used as key
+        :param key: Key used to store the value
         :param value: The request data to store
         :return: None
         """
         raise NotImplementedError("Method must be implemented")
 
     @abstractmethod
-    def get(self, query_params: dict) -> bytes:
+    def get(self, key: str) -> bytes:
         """
         Retrieve a value from the cache
-        :param query_params: query parameters of the query to retrieve. It must be
-        hashed with the same method used in self.set in order to be retrieved.
+        :param key: Key used to store the query to retrieve.
         :return: None if not found or the content of the file
         """
         raise NotImplementedError("Method must be implemented")

@@ -41,17 +41,17 @@ class FileCache(AbstractCache):
         self.cache_ttl = cache_ttl
         self.compression_level = compression_level
 
-    async def set(self, query_params: dict, value: bytes) -> None:
+    async def set(self, key: str, value: bytes) -> None:
         """ "
         Hash the query params and use its value a directory and file name.
         If there is already a valid cache file existing, it will exit. Otherwise it
         will write to a temporary file before renaming it.
-        :param query_params: query parameters of the query to be stored.
+        :param key: Key used to store the value
         :param value: The request data to store
         """
-        if not query_params:
+        if not key:
             return
-        dir_name, file_name = self._params_to_path_names(query_params)
+        dir_name, file_name = self._hash_to_paths(key)
         dir_path = os.path.join(self.cache_path, dir_name)
         file_path = os.path.join(dir_path, file_name)
         if not os.path.exists(dir_path):
@@ -63,15 +63,10 @@ class FileCache(AbstractCache):
             await file.write(zlib.compress(value, self.compression_level))
         await aiofiles.os.rename(temp_file_path, file_path)
 
-    async def get(self, query_params: dict) -> Union[None, bytes]:
-        """
-        Retrieve a value from a cached file based on the hash of query param.
-        :param query_params: query parameters to be retrieved
-        :return: None if no valid cache file or bytes
-        """
-        if not query_params:
+    async def get(self, key: str) -> Union[None, bytes]:
+        if not key:
             return
-        dir_name, file_name = self._params_to_path_names(query_params)
+        dir_name, file_name = self._hash_to_paths(key)
         file_path = os.path.join(self.cache_path, dir_name, file_name)
         if not await self._is_cached_file_valid(file_path):
             return
@@ -83,11 +78,6 @@ class FileCache(AbstractCache):
             return
 
     async def _is_cached_file_valid(self, file_path: str) -> bool:
-        """
-        Verify if the given file is not expired
-        :param file_path: path of the cached file: mb_cache/1sd/23btyqs5rfzm
-        :return: True/False if the file exists and is valid
-        """
         if not os.path.exists(file_path):
             return False
         stats = await aiofiles.os.stat(file_path)
@@ -97,17 +87,11 @@ class FileCache(AbstractCache):
         return cache_duration.seconds < self.cache_ttl
 
     @staticmethod
-    def _params_to_path_names(query_params: dict) -> Union[None, tuple]:
+    def _hash_to_paths(key_hash: str) -> tuple:
         """
-        Hash the query_params and return the path file path.
-        :param query_params: Request parameters to use a key.
+        Split the hash in two part: the directory and the file.
+        :param key_hash: Request parameters to use a key.
         :return: The first 3 characters of the hash as the directory name and the rest
-        as the filename. None if no query_params provided.
+        as the filename.
         """
-        if not query_params:
-            return
-        params_encoded = json.dumps(query_params).encode()
-        hexdigest = hashlib.md5(params_encoded).hexdigest()
-        dir_name = hexdigest[:3]
-        file_name = hexdigest[3:]
-        return dir_name, file_name
+        return key_hash[:3], key_hash[3:]

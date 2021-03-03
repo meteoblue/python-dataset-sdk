@@ -1,5 +1,5 @@
 from meteoblue_dataset_sdk.caching import FileCache
-
+from meteoblue_dataset_sdk.client import Client
 import os
 import shutil
 import tempfile
@@ -49,10 +49,10 @@ class TestFileCache(IsolatedAsyncioTestCase):
             tempfile.gettempdir(), "mb_cache", self.dir_hash, self.file_hash
         )
 
-    def test__params_to_path_names(self):
-        self.assertIsNone(FileCache._params_to_path_names({}))
+    def test__hash_to_paths(self):
+        self.assertEqual(FileCache._hash_to_paths(""),("",""))
         self.assertEqual(
-            FileCache._params_to_path_names({"key": "value"}),
+            FileCache._hash_to_paths("88bac95f31528d13a072c05f2a1cf371"),
             ("88b", "ac95f31528d13a072c05f2a1cf371"),
         )
 
@@ -89,7 +89,8 @@ class TestFileCache(IsolatedAsyncioTestCase):
 
         mock__is_cached_file_valid.return_value = True
         file_cache = FileCache()
-        self.assertEqual(await file_cache.get(self.params), b'{"response": "data"}')
+        key = Client(apikey="124")._hash_params(self.params)
+        self.assertEqual(await file_cache.get(key), b'{"response": "data"}')
         mock__is_cached_file_valid.assert_called_with(
             f"{tempfile.gettempdir()}/mb_cache/{self.dir_hash}/{self.file_hash}"
         )
@@ -98,7 +99,8 @@ class TestFileCache(IsolatedAsyncioTestCase):
     async def test_set(self, mock__is_cached_file_valid):
         mock__is_cached_file_valid.return_value = False
         file_cache = FileCache()
-        await file_cache.set(self.params, bytes('{"someData": "superData"}', "utf-8"))
+        key = Client(apikey="124")._hash_params(self.params)
+        await file_cache.set(key, bytes('{"someData": "superData"}', "utf-8"))
         with open(self.file_path, "rb") as file:
             self.assertEqual(zlib.decompress(file.read()), b'{"someData": "superData"}')
 
