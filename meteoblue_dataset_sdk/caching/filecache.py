@@ -40,7 +40,7 @@ class FileCache(AbstractCache):
         self.compression_level = compression_level
 
     async def set(self, key: str, value: bytes) -> None:
-        """ "
+        """
         Hash the query params and use its value a directory and file name.
         If there is already a valid cache file existing, it will exit. Otherwise it
         will write to a temporary file before renaming it.
