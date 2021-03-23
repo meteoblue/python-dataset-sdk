@@ -180,9 +180,10 @@ class Client(object):
         """
 
         params["format"] = "protobuf"
+        cache_key = ""
         if self.cache:
-            key = self._hash_params(params)
-            cached_query_results = await self.cache.get(key)
+            cache_key = self._hash_params(params)
+            cached_query_results = await self.cache.get(cache_key)
             if cached_query_results:
                 msg = DatasetApiProtobuf()
                 msg.ParseFromString(cached_query_results)
@@ -191,8 +192,7 @@ class Client(object):
         async with self._query_raw(params) as response:
             data = await response.read()
             if self.cache:
-                key = self._hash_params(params)
-                await self.cache.set(key, data)
+                await self.cache.set(cache_key, data)
             msg = DatasetApiProtobuf()
             msg.ParseFromString(data)
             return msg
