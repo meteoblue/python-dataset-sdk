@@ -50,7 +50,6 @@ class TestQuery(unittest.TestCase):
         timeInterval = result.geometries[0].timeIntervals[0]
         variable = geo.codes[0]
         data = variable.timeIntervals[0].data
-        # print(result)
 
         self.assertEqual(geo.domain, "NEMSGLOBAL")
         self.assertEqual(geo.lats, [47.66651916503906])
@@ -203,4 +202,3 @@ class TestQuery(unittest.TestCase):
         result = client.query_sync(query_complex)
         geo = result.geometries[0]
         self.assertEqual(geo.domain, "NEMSGLOBAL")
-

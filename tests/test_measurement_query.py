@@ -1,3 +1,4 @@
+from meteoblue_dataset_sdk.protobuf.measurements_pb2 import MeasurementApiProtobuf
 import meteoblue_dataset_sdk
 
 import asyncio
@@ -10,13 +11,27 @@ class TestMeasurementQuery(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
 
+    @staticmethod
+    def getColumnValues(message: MeasurementApiProtobuf, column: str):
+        filtered_column = [col for col in message.columns if col.column == column]
+        if filtered_column:
+            col = filtered_column[0]
+            col_type = col.values.WhichOneof("oneof_values")
+            if col_type == "strings":
+                return col.values.strings.array
+            elif col_type == "floats":
+                return col.values.floats.array
+            elif col_type == "ints64":
+                return col.values.ints64.array
+
     def test_invalid_table_key(self):
         client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
         path = "/rawdata/dwdClimateHourly/notATable/get"
         with self.assertRaises(meteoblue_dataset_sdk.ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
             self.assertEqual(
-                result, "API returned error message: Unknown table notATable for provider dwdClimateHourly"
+                result,
+                "API returned error message: Unknown table notATable for provider dwdClimateHourly"
             )
 
     def test_invalid_api_key(self):
@@ -25,7 +40,8 @@ class TestMeasurementQuery(unittest.TestCase):
         with self.assertRaises(meteoblue_dataset_sdk.ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
             self.assertEqual(
-                result, "API returned error message: Invalid API Key"
+                result,
+                "API returned error message: Invalid API Key"
             )
 
     def test_simple_query(self):
@@ -35,7 +51,14 @@ class TestMeasurementQuery(unittest.TestCase):
             "limit": 10,
             "sort": "asc",
             "stations": ["00044"],
-            "fields": ["id", "timestamp", "lat", "lon", "asl", "temperature_2mAbvGnd_atTimestamp_none_degCels"]
+            "fields": [
+                "id",
+                "timestamp",
+                "lat",
+                "lon",
+                "asl",
+                "temperature_2mAbvGnd_atTimestamp_none_degCels"
+                ]
             }
         path = "/rawdata/dwdClimate10Minute/dwdClimateMeasurement10MinuteAirTemperature/get"
 
@@ -44,15 +67,15 @@ class TestMeasurementQuery(unittest.TestCase):
         rows_per_page = result.rows_per_page
         current_page = result.current_page
         rows_count = result.rows_count
-        columns = result.columns
-        timestamps = [col for col in columns if col.column == "timestamp"][0].values.ints64.array
-        station_ids = [col for col in columns if col.column == "id"][0].values.strings.array
-        lats = [col for col in columns if col.column == "lat"][0].values.floats.array
-        lons = [col for col in columns if col.column == "lon"][0].values.floats.array
-        asls = [col for col in columns if col.column == "asl"][0].values.floats.array
-        temperatures = [col for col in columns if col.column == "temperature_2mAbvGnd_atTimestamp_none_degCels"][0].values.floats.array
-
-        # print(columns)
+        timestamps = self.getColumnValues(result, "timestamp")
+        station_ids = self.getColumnValues(result, "id")
+        lats = self.getColumnValues(result, "lat")
+        lons = self.getColumnValues(result, "lon")
+        asls = self.getColumnValues(result, "asl")
+        temperatures = self.getColumnValues(
+            result,
+            "temperature_2mAbvGnd_atTimestamp_none_degCels"
+        )
 
         self.assertEqual(rows_per_page, 10)
         self.assertEqual(current_page, 1)
