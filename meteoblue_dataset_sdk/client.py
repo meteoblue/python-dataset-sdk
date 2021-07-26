@@ -73,7 +73,7 @@ class Client(object):
         :param url: url to fetch data from
         :param body_dict: parameters transferred in the body
         :param query_params: parameters transferred as query parameters in the url
-        :return: a ClientResponse response object
+        :return: ClientResponse object from aiohttp lib
         """
         logging.debug(f"Getting url {method} {url}")
         for retry in range(self._config.http_max_retry_count):
@@ -159,6 +159,9 @@ class Client(object):
         :return: ClientResponse object from aiohttp lib
         """
 
+        # always try to execute without job queue first:
+        logging.info("Starting job without job queue")
+        params["runOnJobQueue"] = False
         async with aiohttp.ClientSession() as session:
             # Try to run the job directly
             # In case the API throws an error, try to run it on a job queue
@@ -169,7 +172,7 @@ class Client(object):
                 ) as response:
                     yield response
             except ApiError as error:
-                # Run on a job queue in case the api throws the error
+                # Run on a job queue in case the api throws this error
                 if error.message != "This job must be executed on a job-queue":
                     raise
                 async with self._run_on_job_queue(session, params) as response:
@@ -178,6 +181,12 @@ class Client(object):
     @staticmethod
     def _hash_params(params: dict) -> str:
         return hashlib.md5(json.dumps(params).encode()).hexdigest()
+
+    @staticmethod
+    def _parse_dataset(data):
+        msg = DatasetApiProtobuf()
+        msg.ParseFromString(data)
+        return msg
 
     async def query(self, params: dict):
         """
@@ -189,24 +198,21 @@ class Client(object):
             see https://docs.meteoblue.com/en/apis/environmental-data/dataset-api
         :return: DatasetApiProtobuf object
         """
-
+        # copy params object before making changes to it
+        params = copy.copy(params)
         params["format"] = "protobuf"
         cache_key = ""
         if self.cache:
             cache_key = self._hash_params(params)
             cached_query_results = await self.cache.get(cache_key)
             if cached_query_results:
-                msg = DatasetApiProtobuf()
-                msg.ParseFromString(cached_query_results)
-                return msg
+                return self._parse_dataset(cached_query_results)
 
         async with self._query_raw(params) as response:
             data = await response.read()
             if self.cache:
                 await self.cache.set(cache_key, data)
-            msg = DatasetApiProtobuf()
-            msg.ParseFromString(data)
-            return msg
+            return self._parse_dataset(data)
 
     def querySync(self, params: dict):
         """
