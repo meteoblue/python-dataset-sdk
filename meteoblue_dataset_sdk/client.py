@@ -9,7 +9,7 @@ import hashlib
 import json
 import aiohttp
 
-from .Dataset_pb2 import DatasetApiProtobuf
+from .protobuf.dataset_pb2 import DatasetApiProtobuf
 from .utils import run_async
 
 

@@ -768,7 +768,7 @@ DatasetApiProtobuf = _reflection.GeneratedProtocolMessageType(
             (_message.Message,),
             {
                 "DESCRIPTOR": _DATASETAPIPROTOBUF_GEOMETRY,
-                "__module__": "Dataset_pb2"
+                "__module__": "dataset_pb2"
                 # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Geometry)
             },
         ),
@@ -777,7 +777,7 @@ DatasetApiProtobuf = _reflection.GeneratedProtocolMessageType(
             (_message.Message,),
             {
                 "DESCRIPTOR": _DATASETAPIPROTOBUF_TIMEINTERVAL,
-                "__module__": "Dataset_pb2"
+                "__module__": "dataset_pb2"
                 # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.TimeInterval)
             },
         ),
@@ -786,7 +786,7 @@ DatasetApiProtobuf = _reflection.GeneratedProtocolMessageType(
             (_message.Message,),
             {
                 "DESCRIPTOR": _DATASETAPIPROTOBUF_CODE,
-                "__module__": "Dataset_pb2"
+                "__module__": "dataset_pb2"
                 # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Code)
             },
         ),
@@ -795,12 +795,12 @@ DatasetApiProtobuf = _reflection.GeneratedProtocolMessageType(
             (_message.Message,),
             {
                 "DESCRIPTOR": _DATASETAPIPROTOBUF_TIME,
-                "__module__": "Dataset_pb2"
+                "__module__": "dataset_pb2"
                 # @@protoc_insertion_point(class_scope:DatasetApiProtobuf.Time)
             },
         ),
         "DESCRIPTOR": _DATASETAPIPROTOBUF,
-        "__module__": "Dataset_pb2"
+        "__module__": "dataset_pb2"
         # @@protoc_insertion_point(class_scope:DatasetApiProtobuf)
     },
 )
