@@ -7,9 +7,11 @@ import logging
 from contextlib import asynccontextmanager
 import hashlib
 import json
+import copy
 import aiohttp
 
 from .protobuf.dataset_pb2 import DatasetApiProtobuf
+from .protobuf.measurements_pb2 import MeasurementApiProtobuf
 from .utils import run_async
 
 
@@ -60,18 +62,22 @@ class Client(object):
         session: aiohttp.ClientSession,
         method: str,
         url: str,
-        post_data: dict = None,
+        body_dict: dict = None,
+        query_params: dict = None
     ):
         """
         Fetch data from an URL and try for error 5xx or timeouts.
         Codes other than 2xx will throw an exception.
-        :param url: url to call http GET on
+        :param session: an active aiohttp.ClientSession
         :param method: HTTP verb to use for the request
-        :return: query_params: the parameters to use for the query
+        :param url: url to fetch data from
+        :param body_dict: parameters transferred in the body
+        :param query_params: parameters transferred as query parameters in the url
+        :return: a ClientResponse response object
         """
         logging.debug(f"Getting url {method} {url}")
         for retry in range(self._config.http_max_retry_count):
-            async with session.request(method, url, json=post_data) as response:
+            async with session.request(method, url, json=body_dict, params=query_params) as response:
                 # return if successful
                 if 200 <= response.status <= 299:
                     yield response
@@ -80,10 +86,15 @@ class Client(object):
                 # meteoblue APIs return a JSON encoded error message
                 if response.status == 400 or response.status == 500:
                     json_response = await response.json()
-                    logging.debug(
-                        f"API returned error message: {json_response['error_message']}"
-                    )
-                    raise ApiError(json_response["error_message"])
+                    # TODO: dataset api returns object with 'error_message'
+                    # measurement api object with 'reason'
+                    error_message = ""
+                    if "error_message" in json_response:
+                        error_message = json_response["error_message"]
+                    else:
+                        error_message = json_response["reason"]
+                    logging.debug(f"API returned error message: {error_message}")
+                    raise ApiError(error_message)
 
                 if retry == self._config.http_max_retry_count - 1:
                     logging.error(f"API returned unexpected error: {response.content}")
@@ -108,7 +119,7 @@ class Client(object):
         logging.info("Starting job on queue")
         params["runOnJobQueue"] = True
         url = self._config.query_url.format(self._config.api_key)
-        async with self._fetch(session, "POST", url, post_data=params) as response:
+        async with self._fetch(session, "POST", url, body_dict=params) as response:
             response_json = await response.json()
 
         # Wait until the job is finished
@@ -154,7 +165,7 @@ class Client(object):
             try:
                 url = self._config.query_url.format(self._config.api_key)
                 async with self._fetch(
-                    session, "POST", url, post_data=params
+                    session, "POST", url, body_dict=params
                 ) as response:
                     yield response
             except ApiError as error:
@@ -199,7 +210,7 @@ class Client(object):
 
     def querySync(self, params: dict):
         """
-        Query Meteoblue dataset api synchronously for sequential usage.
+        Query meteoblue dataset api synchronously for sequential usage.
         Prefer query_sync in order to respect python semantic.
         :param params:
              query parameters.
@@ -210,7 +221,77 @@ class Client(object):
 
     def query_sync(self, params: dict):
         """
-        Exactly the same as query sync but using underscore in the name.
-        Keeping QuerySync for backward compatibility.
+        Exactly the same as querySync but using underscore in the name.
+        Keeping querySync for backward compatibility.
         """
         return self.querySync(params)
+
+    def measurement_sync(self, path: str, params: dict):
+        """
+        Query meteoblue measurement api synchronously for sequential usage.
+
+        :param path: path of request
+        :param params: query parameters
+
+        :return: MeasurementApiProtobuf object
+        """
+        return run_async(self.measurement_query, path, params)
+
+    async def measurement_query(self, path: str, params: dict):
+        """
+        Query meteoblue measurement api asynchronously, transfer data using protobuf and
+        return a structured object
+
+        :param path: path of request
+        :param params: query parameters
+
+        :return: MeasurementApiProtobuf object
+        """
+        # copy params object before making changes to it
+        params = copy.copy(params)
+        params["format"] = "protobuf"
+        cache_key = ""
+        if self.cache:
+            cache_key = self._hash_params_measurements(path, params)
+            cached_query_results = await self.cache.get(cache_key)
+            if cached_query_results:
+                self._parse_measurements(cached_query_results)
+
+        async with self._query_measurement_api(path, params) as response:
+            data = await response.read()
+            if self.cache:
+                await self.cache.set(cache_key, data)
+            return self._parse_measurements(data)
+
+    @staticmethod
+    def _parse_measurements(data):
+        msg = MeasurementApiProtobuf()
+        msg.ParseFromString(data)
+        return msg
+
+    @staticmethod
+    def _hash_params_measurements(path: str, params: dict) -> str:
+        return hashlib.md5(path.encode(), json.dumps(params).encode()).hexdigest()
+
+    @asynccontextmanager
+    async def _query_measurement_api(self, path: str, params: dict):
+        """
+        Query meteoblue measurement api asynchronously and return a ClientResponse object
+        using context manager
+
+        :param path: path of request
+        :param params: query parameters
+        :return: ClientResponse object from aiohttp lib
+        """
+        base_url = "http://measurement-api.meteoblue.com"
+        params["apikey"] = self._config.api_key
+        url = base_url + path
+        async with aiohttp.ClientSession() as session:
+            async with self._fetch(
+                session=session,
+                method="GET",
+                url=url,
+                body_dict=None,
+                query_params=params
+            ) as response:
+                yield response
