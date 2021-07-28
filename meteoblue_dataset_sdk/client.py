@@ -163,7 +163,6 @@ class Client(object):
         """
 
         # always try to execute without job queue first:
-        logging.info("Starting job without job queue")
         params["runOnJobQueue"] = False
         async with aiohttp.ClientSession() as session:
             # Try to run the job directly
