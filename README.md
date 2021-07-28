@@ -126,7 +126,7 @@ def meteoblue_timeinterval_to_timestamps(t):
         return list(map(map_ts, t.timestrings))
 
     timerange = range(t.start, t.end, t.stride)
-    return list(map(lambda t: dt.date.fromtimestamp(t), timerange))
+    return list(map(lambda t: dt.datetime.fromtimestamp(t), timerange))
 
 query = { ... }
 result = client.query_sync(query)

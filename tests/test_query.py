@@ -1,4 +1,4 @@
-import meteoblue_dataset_sdk
+from meteoblue_dataset_sdk import ApiError, Client
 
 import asyncio
 import logging
@@ -11,8 +11,8 @@ class TestQuery(unittest.TestCase):
         logging.basicConfig(level=logging.DEBUG)
 
     def test_invalid_query(self):
-        client = meteoblue_dataset_sdk.Client("invalid_api_key")
-        with self.assertRaises(meteoblue_dataset_sdk.ApiError):
+        client = Client("invalid_api_key")
+        with self.assertRaises(ApiError):
             result = asyncio.run(client.query({"invalid": "query"}))
             self.assertEqual(
                 result, "API returned error message: Value required for key 'geometry'."
@@ -34,6 +34,7 @@ class TestQuery(unittest.TestCase):
             "format": "json",
             "timeIntervals": ["2019-01-01T+00:00/2019-01-01T+00:00"],
             "timeIntervalsAlignment": "none",
+            "runOnJobQueue": True,
             "queries": [
                 {
                     "domain": "NEMSGLOBAL",
@@ -44,13 +45,12 @@ class TestQuery(unittest.TestCase):
             ],
         }
 
-        client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
+        client = Client(os.environ["APIKEY"])
         result = asyncio.run(client.query(query))
         geo = result.geometries[0]
         timeInterval = result.geometries[0].timeIntervals[0]
         variable = geo.codes[0]
         data = variable.timeIntervals[0].data
-        # print(result)
 
         self.assertEqual(geo.domain, "NEMSGLOBAL")
         self.assertEqual(geo.lats, [47.66651916503906])
@@ -139,7 +139,7 @@ class TestQuery(unittest.TestCase):
             ],
         }
 
-        client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
+        client = Client(os.environ["APIKEY"])
         result = asyncio.run(client.query(query_complex))
         geo = result.geometries[0]
         timestamps = geo.timeIntervals[0].timestrings

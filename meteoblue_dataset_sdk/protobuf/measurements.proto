@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+message MeasurementApiProtobuf {
+
+  // variables go here
+  repeated Column columns = 1;
+  uint32 rows_count = 2;
+  uint32 current_page = 3;
+  uint32 rows_per_page = 4;
+
+
+  message Column {
+    // meta
+    string column = 1;
+    // values
+    Values values = 2;
+  }
+  
+  // Variant type encoding 
+  message Values {
+    // Exactly one of these values must be present in a valid message
+    oneof oneof_values {
+      RepeatedString strings = 1;
+      RepeatedFloat floats = 2;
+      RepeatedInt64 ints64 = 3;
+    }
+  }
+
+  message RepeatedString {
+    repeated string array = 1;
+  }
+
+  message RepeatedFloat {
+    repeated float array = 1 [packed=true];
+  }
+
+  message RepeatedInt64 {
+    repeated int64 array = 1 [packed=true];
+  }
+}
