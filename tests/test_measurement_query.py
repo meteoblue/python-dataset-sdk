@@ -1,5 +1,5 @@
+from meteoblue_dataset_sdk import ApiError, Client
 from meteoblue_dataset_sdk.protobuf.measurements_pb2 import MeasurementApiProtobuf
-import meteoblue_dataset_sdk
 
 import asyncio
 import logging
@@ -25,24 +25,28 @@ class TestMeasurementQuery(unittest.TestCase):
                 return col.values.ints64.array
 
     def test_invalid_table_key(self):
-        client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
+        client = Client(os.environ["APIKEY"])
         path = "/rawdata/dwdClimateHourly/notATable/get"
-        with self.assertRaises(meteoblue_dataset_sdk.ApiError):
+        expected_error_message = (
+            "API returned error message:"
+            " Unknown table notATable for provider dwdClimateHourly"
+        )
+        with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
             self.assertEqual(
                 result,
-                "API returned error message: Unknown table notATable for provider dwdClimateHourly"
+                expected_error_message,
             )
 
     def test_invalid_api_key(self):
-        client = meteoblue_dataset_sdk.Client("invalid_api_key")
-        path = "/rawdata/dwdClimateHourly/dwdClimateMeasurementHourlyAirTemperature/get"
-        with self.assertRaises(meteoblue_dataset_sdk.ApiError):
+        client = Client("invalid_api_key")
+        provider = "dwdClimateHourly"
+        table = "dwdClimateMeasurementHourlyAirTemperature"
+        path = f"/rawdata/{provider}/{table}/get"
+
+        with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
-            self.assertEqual(
-                result,
-                "API returned error message: Invalid API Key"
-            )
+            self.assertEqual(result, "API returned error message: Invalid API Key")
 
     def test_simple_query(self):
         query = {
@@ -57,12 +61,14 @@ class TestMeasurementQuery(unittest.TestCase):
                 "lat",
                 "lon",
                 "asl",
-                "temperature_2mAbvGnd_atTimestamp_none_degCels"
-                ]
-            }
-        path = "/rawdata/dwdClimate10Minute/dwdClimateMeasurement10MinuteAirTemperature/get"
+                "temperature_2mAbvGnd_atTimestamp_none_degCels",
+            ],
+        }
+        provider = "dwdClimate10Minute"
+        table = "dwdClimateMeasurement10MinuteAirTemperature"
+        path = f"/rawdata/{provider}/{table}/get"
 
-        client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
+        client = Client(os.environ["APIKEY"])
         result = asyncio.run(client.measurement_query(path, query))
         rows_per_page = result.rows_per_page
         current_page = result.current_page
@@ -73,8 +79,7 @@ class TestMeasurementQuery(unittest.TestCase):
         lons = self.getColumnValues(result, "lon")
         asls = self.getColumnValues(result, "asl")
         temperatures = self.getColumnValues(
-            result,
-            "temperature_2mAbvGnd_atTimestamp_none_degCels"
+            result, "temperature_2mAbvGnd_atTimestamp_none_degCels"
         )
 
         self.assertEqual(rows_per_page, 10)
@@ -92,8 +97,8 @@ class TestMeasurementQuery(unittest.TestCase):
                 1577883600,
                 1577884200,
                 1577884800,
-                1577885400
-            ]
+                1577885400,
+            ],
         )
         self.assertEqual(
             station_ids,
@@ -107,8 +112,8 @@ class TestMeasurementQuery(unittest.TestCase):
                 "00044",
                 "00044",
                 "00044",
-                "00044"
-            ]
+                "00044",
+            ],
         )
         self.assertEqual(
             lats,
@@ -122,8 +127,8 @@ class TestMeasurementQuery(unittest.TestCase):
                 52.93360137939453,
                 52.93360137939453,
                 52.93360137939453,
-                52.93360137939453
-            ]
+                52.93360137939453,
+            ],
         )
         self.assertEqual(
             lons,
@@ -137,23 +142,11 @@ class TestMeasurementQuery(unittest.TestCase):
                 8.237000465393066,
                 8.237000465393066,
                 8.237000465393066,
-                8.237000465393066
-            ]
+                8.237000465393066,
+            ],
         )
         self.assertEqual(
-            asls,
-            [
-                44.0,
-                44.0,
-                44.0,
-                44.0,
-                44.0,
-                44.0,
-                44.0,
-                44.0,
-                44.0,
-                44.0
-            ]
+            asls, [44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0]
         )
         self.assertEqual(
             temperatures,
@@ -167,6 +160,6 @@ class TestMeasurementQuery(unittest.TestCase):
                 -0.800000011920929,
                 -0.800000011920929,
                 -0.8999999761581421,
-                -0.8999999761581421
-            ]
+                -0.8999999761581421,
+            ],
         )

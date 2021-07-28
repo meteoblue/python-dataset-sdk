@@ -3,11 +3,12 @@ meteoblue dataset client
 """
 
 import asyncio
-import logging
-from contextlib import asynccontextmanager
+import copy
 import hashlib
 import json
-import copy
+import logging
+from contextlib import asynccontextmanager
+
 import aiohttp
 
 from .protobuf.dataset_pb2 import DatasetApiProtobuf
@@ -63,7 +64,7 @@ class Client(object):
         method: str,
         url: str,
         body_dict: dict = None,
-        query_params: dict = None
+        query_params: dict = None,
     ):
         """
         Fetch data from an URL and try for error 5xx or timeouts.
@@ -77,7 +78,9 @@ class Client(object):
         """
         logging.debug(f"Getting url {method} {url}")
         for retry in range(self._config.http_max_retry_count):
-            async with session.request(method, url, json=body_dict, params=query_params) as response:
+            async with session.request(
+                method, url, json=body_dict, params=query_params
+            ) as response:
                 # return if successful
                 if 200 <= response.status <= 299:
                     yield response
@@ -282,8 +285,8 @@ class Client(object):
     @asynccontextmanager
     async def _query_measurement_api(self, path: str, params: dict):
         """
-        Query meteoblue measurement api asynchronously and return a ClientResponse object
-        using context manager
+        Query meteoblue measurement api asynchronously and return a
+        ClientResponse object using context manager
 
         :param path: path of request
         :param params: query parameters
@@ -298,6 +301,6 @@ class Client(object):
                 method="GET",
                 url=url,
                 body_dict=None,
-                query_params=params
+                query_params=params,
             ) as response:
                 yield response

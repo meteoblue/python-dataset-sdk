@@ -1,4 +1,4 @@
-import meteoblue_dataset_sdk
+from meteoblue_dataset_sdk import ApiError, Client
 
 import asyncio
 import logging
@@ -11,8 +11,8 @@ class TestQuery(unittest.TestCase):
         logging.basicConfig(level=logging.DEBUG)
 
     def test_invalid_query(self):
-        client = meteoblue_dataset_sdk.Client("invalid_api_key")
-        with self.assertRaises(meteoblue_dataset_sdk.ApiError):
+        client = Client("invalid_api_key")
+        with self.assertRaises(ApiError):
             result = asyncio.run(client.query({"invalid": "query"}))
             self.assertEqual(
                 result, "API returned error message: Value required for key 'geometry'."
@@ -34,6 +34,7 @@ class TestQuery(unittest.TestCase):
             "format": "json",
             "timeIntervals": ["2019-01-01T+00:00/2019-01-01T+00:00"],
             "timeIntervalsAlignment": "none",
+            "runOnJobQueue": True,
             "queries": [
                 {
                     "domain": "NEMSGLOBAL",
@@ -44,7 +45,7 @@ class TestQuery(unittest.TestCase):
             ],
         }
 
-        client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
+        client = Client(os.environ["APIKEY"])
         result = asyncio.run(client.query(query))
         geo = result.geometries[0]
         timeInterval = result.geometries[0].timeIntervals[0]
@@ -138,7 +139,7 @@ class TestQuery(unittest.TestCase):
             ],
         }
 
-        client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
+        client = Client(os.environ["APIKEY"])
         result = asyncio.run(client.query(query_complex))
         geo = result.geometries[0]
         timestamps = geo.timeIntervals[0].timestrings
@@ -159,46 +160,3 @@ class TestQuery(unittest.TestCase):
 
         self.assertEqual(timestamps, ["20170101T0000-20190131T235959"])
         self.assertEqual(data, [8.519842147827148])
-
-    def test_run_job_on_queue_directly(self):
-        query_complex = {
-            "units": {
-                "temperature": "C",
-                "velocity": "km/h",
-                "length": "metric",
-                "energy": "watts",
-            },
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [2.96894, 46.041886],
-                        [2.96894, 48.216537],
-                        [10.989692, 48.216537],
-                        [10.989692, 46.041886],
-                        [2.96894, 46.041886],
-                    ]
-                ],
-            },
-            "format": "json",
-            "timeIntervals": ["2017-01-01T+00:00/2019-01-31T+00:00"],
-            "timeIntervalsAlignment": "none",
-            "runOnJobQueue": True,
-            "queries": [
-                {
-                    "domain": "NEMSGLOBAL",
-                    "gapFillDomain": None,
-                    "timeResolution": "hourly",
-                    "codes": [{"code": 11, "level": "2 m above gnd"}],
-                    "transformations": [
-                        {"type": "aggregateTimeInterval", "aggregation": "mean"},
-                        {"type": "spatialTotalAggregate", "aggregation": "mean"},
-                    ],
-                }
-            ],
-        }
-
-        client = meteoblue_dataset_sdk.Client(os.environ["APIKEY"])
-        result = client.query_sync(query_complex)
-        geo = result.geometries[0]
-        self.assertEqual(geo.domain, "NEMSGLOBAL")
