@@ -1,5 +1,6 @@
 from meteoblue_dataset_sdk import ApiError, Client
 from meteoblue_dataset_sdk.protobuf.measurements_pb2 import MeasurementApiProtobuf
+from meteoblue_dataset_sdk.caching import FileCache
 
 import asyncio
 import logging
@@ -68,7 +69,8 @@ class TestMeasurementQuery(unittest.TestCase):
         table = "dwdClimateMeasurement10MinuteAirTemperature"
         path = f"/rawdata/{provider}/{table}/get"
 
-        client = Client(os.environ["APIKEY"])
+        cache = FileCache()
+        client = Client(os.environ["APIKEY"], cache=cache)
         result = asyncio.run(client.measurement_query(path, query))
         rows_per_page = result.rows_per_page
         current_page = result.current_page

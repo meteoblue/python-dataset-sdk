@@ -279,7 +279,7 @@ class Client(object):
 
     @staticmethod
     def _hash_params_measurements(path: str, params: dict) -> str:
-        return hashlib.md5(path.encode(), json.dumps(params).encode()).hexdigest()
+        return hashlib.md5(path.encode() + json.dumps(params).encode()).hexdigest()
 
     @asynccontextmanager
     async def _query_measurement_api(self, path: str, params: dict):
