@@ -119,9 +119,9 @@ import dateutil.parser
 def meteoblue_timeinterval_to_timestamps(t):
     if len(t.timestrings) > 0:
         def map_ts(time):
-            if "-" not in time:
-                return time
-            return dateutil.parser.parse(time.partition("-")[0])
+            if "-" in time:
+                return dateutil.parser.parse(time.partition("-")[0])
+            return dateutil.parser.parse(time)
 
         return list(map(map_ts, t.timestrings))
 
