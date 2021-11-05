@@ -14,7 +14,10 @@ Features:
 - Data can be used as simple floating-point arrays. No further formatting required.
 - Semantic Versioning: The interface for version 1 is declared stable. Breaking interface changes will be published in version 2.
 
-
+Example notebooks:
+- [Basic example](example.ipynb)
+- [Creating graphs and maps](example_graphs_and_maps.ipynbs)
+- [Using measurement data](example_measurements.ipynb)
 ## Installation
 - Ensure that you are using at least Python 3.7 with `python --version` (Sometimes `python3`)
 - Install the module with `pip install 'meteoblue_dataset_sdk >=1.0,<2.0'` (Sometimes `pip3`)
