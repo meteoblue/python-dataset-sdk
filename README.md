@@ -16,7 +16,7 @@ Features:
 
 Example notebooks:
 - [Basic example](example.ipynb)
-- [Creating graphs and maps](example_graphs_and_maps.ipynbs)
+- [Creating graphs and maps](example_graphs_and_maps.ipynb)
 - [Using measurement data](example_measurements.ipynb)
 ## Installation
 - Ensure that you are using at least Python 3.7 with `python --version` (Sometimes `python3`)
