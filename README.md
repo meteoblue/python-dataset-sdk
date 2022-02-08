@@ -160,7 +160,7 @@ def meteoblue_result_to_dataframe(geometry):
 
     for code in geometry.codes:
         name = str(code.code) + "_" + code.level + "_" + code.aggregation
-        df[name] = code.timeIntervals[0].data
+        df[name] = list(code.timeIntervals[0].data)
 
     return df
 

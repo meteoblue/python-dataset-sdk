@@ -49,6 +49,8 @@ def is_jupyter_notebook():
         shell = get_ipython().__class__.__name__
         if shell == "ZMQInteractiveShell":
             return True  # Jupyter notebook or qtconsole
+        elif shell == "SpyderShell":
+            return True  # Spyder IDE
         elif shell == "TerminalInteractiveShell":
             return False  # Terminal running IPython
         else:
