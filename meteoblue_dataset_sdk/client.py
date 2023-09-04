@@ -14,15 +14,18 @@ import aiohttp
 from .protobuf.dataset_pb2 import DatasetApiProtobuf
 from .protobuf.measurements_pb2 import MeasurementApiProtobuf
 from .utils import run_async
+import hmac
+import jsonpickle
 
 
 class ClientConfig(object):
-    def __init__(self, apikey: str):
+    def __init__(self, apikey: str, shared_secret: str):
         # urls
         # following job id
         self.status_url = "http://my.meteoblue.com/queue/status/{}"
         # following api key
         self.query_url = "http://my.meteoblue.com/dataset/query?apikey={}"
+        self.query_sig = "/dataset/query?apikey={}"
         # following job id
         self.result_url = "http://queueresults.meteoblue.com/{}"
 
@@ -32,6 +35,7 @@ class ClientConfig(object):
 
         # other config
         self.api_key = apikey
+        self.shared_secret = shared_secret
         self.queue_retry_sleep_duration = 5
 
 
@@ -53,8 +57,8 @@ class ApiError(Error):
 
 
 class Client(object):
-    def __init__(self, apikey: str, cache=None):
-        self._config = ClientConfig(apikey)
+    def __init__(self, apikey: str, shared_secret: str, cache=None):
+        self._config = ClientConfig(apikey, shared_secret)
         self.cache = cache
 
     @asynccontextmanager
@@ -164,13 +168,19 @@ class Client(object):
 
         # always try to execute without job queue first:
         params["runOnJobQueue"] = False
+        # calculate MD5 sum of POST body
+        post_body_md5 = hashlib.md5(jsonpickle.encode(params).encode('utf-8')).hexdigest()
+        url = self._config.query_url.format(self._config.api_key)
+        # calculate signature
+        # URL GET parameter &post_body_md5= is needed for correct signature calculation
+        url_sig = f"{self._config.query_sig.format(self._config.api_key)}&post_body_md5={post_body_md5}"
+        sig = hmac.new(bytes(self._config.shared_secret, 'UTF-8'), url_sig.encode(), hashlib.sha256).hexdigest()
         async with aiohttp.ClientSession() as session:
             # Try to run the job directly
             # In case the API throws an error, try to run it on a job queue
             try:
-                url = self._config.query_url.format(self._config.api_key)
                 async with self._fetch(
-                    session, "POST", url, body_dict=params
+                    session, "POST", url, body_dict=params, query_params={"post_body_md5": post_body_md5, "sig": sig}
                 ) as response:
                     yield response
             except ApiError as error:
