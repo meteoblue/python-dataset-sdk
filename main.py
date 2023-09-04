@@ -31,7 +31,7 @@ async def myFunction():
             }
         ],
     }
-    client = meteoblue_dataset_sdk.Client(apikey="xxxxxx")  # ask for key
+    client = meteoblue_dataset_sdk.Client(apikey="xxxxxx", shared_secret="yyyyy")  # ask for key
     result = await client.query(query)
     # result is a structured object containing timestamps and data
 
