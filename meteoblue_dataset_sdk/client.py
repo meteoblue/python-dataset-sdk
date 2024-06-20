@@ -291,7 +291,7 @@ class Client(object):
         :param params: query parameters
         :return: ClientResponse object from aiohttp lib
         """
-        base_url = "http://measurement-api.meteoblue.com"
+        base_url = "https://measurements-api.meteoblue.com"
         params["apikey"] = self._config.api_key
         url = base_url + path
         async with aiohttp.ClientSession() as session:

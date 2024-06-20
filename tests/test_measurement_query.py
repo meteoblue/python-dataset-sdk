@@ -24,13 +24,21 @@ class TestMeasurementQuery(unittest.TestCase):
                 return col.values.floats.array
             elif col_type == "ints64":
                 return col.values.ints64.array
+            elif col_type == "ints32":
+                return col.values.ints32.array
+            elif col_type == "uints64":
+                return col.values.uint64.array
+            elif col_type == "uints32":
+                return col.values.uints32.array
+            elif col_type == "bools":
+                return col.values.bools.array
 
     def test_invalid_table_key(self):
         client = Client(os.environ["APIKEY"])
-        path = "/rawdata/dwdClimateHourly/notATable/get"
+        path = "/dwdClimateHourly/raw/invalid/get"
         expected_error_message = (
             "API returned error message:"
-            " Unknown table notATable for provider dwdClimateHourly"
+            " Unknown table invalid for provider dwdClimateHourly"
         )
         with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
@@ -42,8 +50,8 @@ class TestMeasurementQuery(unittest.TestCase):
     def test_invalid_api_key(self):
         client = Client("invalid_api_key")
         provider = "dwdClimateHourly"
-        table = "dwdClimateMeasurementHourlyAirTemperature"
-        path = f"/rawdata/{provider}/{table}/get"
+        table = "measurement"
+        path = f"/{provider}/raw/{table}/get"
 
         with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
@@ -66,8 +74,8 @@ class TestMeasurementQuery(unittest.TestCase):
             ],
         }
         provider = "dwdClimate10Minute"
-        table = "dwdClimateMeasurement10MinuteAirTemperature"
-        path = f"/rawdata/{provider}/{table}/get"
+        table = "measurement"
+        path = f"/{provider}/raw/{table}/get"
 
         cache = FileCache()
         client = Client(os.environ["APIKEY"], cache=cache)

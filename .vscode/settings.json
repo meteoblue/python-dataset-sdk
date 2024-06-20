@@ -18,5 +18,10 @@
     "python.linting.flake8Args": [
         "--max-line-length=1500",
     ],
-    "python.pythonPath": "env/bin/python"
+    "python.pythonPath": "env/bin/python",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
 }
