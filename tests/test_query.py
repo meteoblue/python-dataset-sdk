@@ -147,8 +147,10 @@ class TestQuery(unittest.TestCase):
         data = variable.timeIntervals[0].data
 
         self.assertEqual(geo.domain, "NEMSGLOBAL")
-        self.assertEqual(geo.lats, [47.12916946411133])
-        self.assertEqual(geo.lons, [6.97930908203125])
+        self.assertEqual(len(geo.lats), 1)
+        self.assertEqual(len(geo.lons), 1)
+        self.assertAlmostEqual(geo.lats[0], 47.12916946411133, 3)
+        self.assertAlmostEqual(geo.lons[0], 6.97930908203125, 3)
         self.assertEqual(geo.nx, 1)
         self.assertEqual(geo.ny, 1)
         self.assertEqual(geo.timeResolution, "total")
@@ -159,4 +161,5 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(variable.aggregation, "mean")
 
         self.assertEqual(timestamps, ["20170101T0000-20190131T235959"])
-        self.assertEqual(data, [8.519842147827148])
+        self.assertEqual(len(data), 1)
+        self.assertAlmostEqual(data[0], 8.519842147827148, 3)

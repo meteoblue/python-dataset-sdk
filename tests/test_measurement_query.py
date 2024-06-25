@@ -47,7 +47,7 @@ class TestMeasurementQuery(unittest.TestCase):
 
         with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
-            self.assertEqual(result, "API returned error message: Invalid API Key")
+            self.assertEqual(result, "Apikey was specified, but is not valid.")
 
     def test_simple_query(self):
         query = {
