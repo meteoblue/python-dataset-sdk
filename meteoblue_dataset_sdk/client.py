@@ -87,7 +87,7 @@ class Client(object):
                     return
 
                 # meteoblue APIs return a JSON encoded error message
-                if response.status == 400 or response.status == 403 or response.status == 500:
+                if response.status == 400 or response.status == 404 or response.status == 403 or response.status == 422 or response.status == 500:
                     json_response = await response.json()
                     # TODO: dataset api returns object with 'error_message'
                     # measurement api object with 'reason'
