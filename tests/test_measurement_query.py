@@ -1,3 +1,4 @@
+from math import isnan
 from meteoblue_dataset_sdk import ApiError, Client
 from meteoblue_dataset_sdk.caching import FileCache
 from meteoblue_dataset_sdk.protobuf.measurements_pb2 import MeasurementApiProtobuf
@@ -9,6 +10,9 @@ import unittest
 
 
 class TestMeasurementQuery(unittest.TestCase):
+    def assertIsNaN(self, value: float):
+        self.assertTrue(isnan(value))
+
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
 
@@ -24,13 +28,21 @@ class TestMeasurementQuery(unittest.TestCase):
                 return col.values.floats.array
             elif col_type == "ints64":
                 return col.values.ints64.array
+            elif col_type == "ints32":
+                return col.values.ints32.array
+            elif col_type == "uints64":
+                return col.values.uint64.array
+            elif col_type == "uints32":
+                return col.values.uints32.array
+            elif col_type == "bools":
+                return col.values.bools.array
 
     def test_invalid_table_key(self):
         client = Client(os.environ["APIKEY"])
-        path = "/rawdata/dwdClimateHourly/notATable/get"
+        path = "/v2/dwdClimateHourly/raw/invalid/get"
         expected_error_message = (
             "API returned error message:"
-            " Unknown table notATable for provider dwdClimateHourly"
+            " Unknown table invalid for provider dwdClimateHourly"
         )
         with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
@@ -42,17 +54,17 @@ class TestMeasurementQuery(unittest.TestCase):
     def test_invalid_api_key(self):
         client = Client("invalid_api_key")
         provider = "dwdClimateHourly"
-        table = "dwdClimateMeasurementHourlyAirTemperature"
-        path = f"/rawdata/{provider}/{table}/get"
+        table = "measurement"
+        path = f"/v2/{provider}/raw/{table}/get"
 
         with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
-            self.assertEqual(result, "API returned error message: Invalid API Key")
+            self.assertEqual(result, "Apikey was specified, but is not valid.")
 
     def test_simple_query(self):
         query = {
-            "timeStart": "2020-01-01T12:00:00",
-            "timeEnd": "2020-01-02T12:00:00",
+            "timeStart": "2024-05-01T12:00:00",
+            "timeEnd": "2024-05-02T12:00:00",
             "limit": 10,
             "sort": "asc",
             "stations": ["00044"],
@@ -66,8 +78,8 @@ class TestMeasurementQuery(unittest.TestCase):
             ],
         }
         provider = "dwdClimate10Minute"
-        table = "dwdClimateMeasurement10MinuteAirTemperature"
-        path = f"/rawdata/{provider}/{table}/get"
+        table = "measurement"
+        path = f"/v2/{provider}/raw/{table}/get"
 
         cache = FileCache()
         client = Client(os.environ["APIKEY"], cache=cache)
@@ -90,16 +102,16 @@ class TestMeasurementQuery(unittest.TestCase):
         self.assertEqual(
             timestamps,
             [
-                1577880000,
-                1577880600,
-                1577881200,
-                1577881800,
-                1577882400,
-                1577883000,
-                1577883600,
-                1577884200,
-                1577884800,
-                1577885400,
+                1714564800,
+                1714565400,
+                1714566000,
+                1714566600,
+                1714567200,
+                1714567800,
+                1714568400,
+                1714569000,
+                1714569600,
+                1714570200,
             ],
         )
         self.assertEqual(
@@ -150,18 +162,13 @@ class TestMeasurementQuery(unittest.TestCase):
         self.assertEqual(
             asls, [44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0, 44.0]
         )
-        self.assertEqual(
-            temperatures,
-            [
-                -0.8999999761581421,
-                -1.2000000476837158,
-                -1.100000023841858,
-                -0.8999999761581421,
-                -0.8999999761581421,
-                -0.800000011920929,
-                -0.800000011920929,
-                -0.800000011920929,
-                -0.8999999761581421,
-                -0.8999999761581421,
-            ],
-        )
+        self.assertIsNaN(temperatures[0])
+        self.assertAlmostEqual(temperatures[1], 25.6, 1)
+        self.assertAlmostEqual(temperatures[2], 26, 1)
+        self.assertIsNaN(temperatures[3])
+        self.assertAlmostEqual(temperatures[4], 26.1, 1)
+        self.assertAlmostEqual(temperatures[5], 26.1, 1)
+        self.assertIsNaN(temperatures[6])
+        self.assertAlmostEqual(temperatures[7], 26.4, 1)
+        self.assertAlmostEqual(temperatures[8], 26.1, 1)
+        self.assertIsNaN(temperatures[9])

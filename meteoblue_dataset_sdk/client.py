@@ -87,7 +87,7 @@ class Client(object):
                     return
 
                 # meteoblue APIs return a JSON encoded error message
-                if response.status == 400 or response.status == 500:
+                if response.status == 400 or response.status == 404 or response.status == 403 or response.status == 422 or response.status == 500:
                     json_response = await response.json()
                     # TODO: dataset api returns object with 'error_message'
                     # measurement api object with 'reason'
@@ -291,7 +291,7 @@ class Client(object):
         :param params: query parameters
         :return: ClientResponse object from aiohttp lib
         """
-        base_url = "http://measurement-api.meteoblue.com"
+        base_url = "https://measurements-api.meteoblue.com"
         params["apikey"] = self._config.api_key
         url = base_url + path
         async with aiohttp.ClientSession() as session:
