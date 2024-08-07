@@ -14,7 +14,7 @@ Features:
 - Data can be used as simple floating-point arrays. No further formatting required.
 - Semantic Versioning: The interface for version 1 is declared stable. Breaking interface changes will be published in version 2.
 
-Usage example notebooks:
+Example notebooks:
 - [Basic example](example.ipynb)
 - [Using model data, creating graphs and maps](example_datasets.ipynb)
 - [Using measurement data](example_measurements.ipynb)
@@ -172,7 +172,7 @@ df = meteoblue_result_to_dataframe(result.geometries[0])
 ## Protobuf format
 In the background, data is transferred using protobuf and defined as [this protobuf structure](./meteoblue_dataset_sdk/Dataset.proto).
 
-A 10 year hourly data series for 1 location requires `350 kb` using protobuf, compared to `1600 kb` using JSON. Additionally the meteoblue Python SDK transfers data using gzip which reduces the size to only `87 kb`.
+A 10 year hourly data series for 1 location requires `350 kb` using protobuf, compared to `1600 kb` using JSON. Additionally the meteoblue Python SDK transfers data using gzip which reduces the size to only `87 kb`. 
 
 More detailed output of the `result` protobuf object:
 
