@@ -12,6 +12,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/meteoblue_dataset_sdk
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
