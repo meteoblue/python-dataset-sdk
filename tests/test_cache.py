@@ -3,12 +3,12 @@ from meteoblue_dataset_sdk.client import Client
 
 import shutil
 import tempfile
+import unittest
 import zlib
 from pathlib import Path
+from unittest import mock
 
 from freezegun import freeze_time
-from unittest import mock
-import unittest
 
 
 class TestFileCache(unittest.IsolatedAsyncioTestCase):
