@@ -15,9 +15,9 @@ Features:
 - Semantic Versioning: The interface for version 1 is declared stable. Breaking interface changes will be published in version 2.
 
 Example notebooks:
-- [Basic example](example.ipynb)
-- [Using model data, creating graphs and maps](example_datasets.ipynb)
-- [Using measurement data](example_measurements.ipynb)
+- [Basic example](https://github.com/meteoblue/python-dataset-sdk/blob/master/example.ipynb)
+- [Using model data, creating graphs and maps](https://github.com/meteoblue/python-dataset-sdk/blob/master/example_datasets.ipynb)
+- [Using measurement data](https://github.com/meteoblue/python-dataset-sdk/blob/master/example_measurements.ipynb)
 ## Installation
 - Ensure that you are using at least Python 3.7 with `python --version` (Sometimes `python3`)
 - Install the module with `pip install 'meteoblue_dataset_sdk >=1.0,<2.0'` (Sometimes `pip3`)
@@ -28,7 +28,7 @@ This module will also install the following dependencies automatically:
 
 
 ## Usage
-See [main.py](./main.py) for a working example. To generate the query JSON it is highly recommended to use the [dataset API web interfaces](https://docs.meteoblue.com/en/apis/environmental-data/web-interfaces).
+See [main.py](https://github.com/meteoblue/python-dataset-sdk/blob/master/main.py) for a working example. To generate the query JSON it is highly recommended to use the [dataset API web interfaces](https://docs.meteoblue.com/en/apis/environmental-data/web-interfaces).
 
 ```python
 import meteoblue_dataset_sdk
@@ -95,7 +95,7 @@ cache = FileCache(path="./mb_cache", max_age=86400, compression_level=zlib.Z_BES
 client = meteoblue_dataset_sdk.Client(apikey="xxxxxx", cache=cache)
 ```
 
-If you want to implement a different cache (e.g. redis or S3), the SDK offers an abstract base class `caching.cache.AbstractCache`. The required methods are listed [here](./meteoblue_dataset_sdk/caching/abstractcache.py).
+If you want to implement a different cache (e.g. redis or S3), the SDK offers an abstract base class `caching.cache.AbstractCache`. The required methods are listed [here](https://github.com/meteoblue/python-dataset-sdk/blob/master/meteoblue_dataset_sdk/caching/abstractcache.py).
 
 
 ## Working with timestamps
@@ -170,9 +170,9 @@ df = meteoblue_result_to_dataframe(result.geometries[0])
 ```
 
 ## Protobuf format
-In the background, data is transferred using protobuf and defined as [this protobuf structure](./meteoblue_dataset_sdk/Dataset.proto).
+In the background, data is transferred using protobuf and defined as [this protobuf structure](https://github.com/meteoblue/python-dataset-sdk/blob/master/meteoblue_dataset_sdk/protobuf/dataset.proto).
 
-A 10 year hourly data series for 1 location requires `350 kb` using protobuf, compared to `1600 kb` using JSON. Additionally the meteoblue Python SDK transfers data using gzip which reduces the size to only `87 kb`. 
+A 10 year hourly data series for 1 location requires `350 kb` using protobuf, compared to `1600 kb` using JSON. Additionally the meteoblue Python SDK transfers data using gzip which reduces the size to only `87 kb`.
 
 More detailed output of the `result` protobuf object:
 
