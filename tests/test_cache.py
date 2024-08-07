@@ -3,17 +3,15 @@ from meteoblue_dataset_sdk.client import Client
 
 import shutil
 import tempfile
+import unittest
 import zlib
 from pathlib import Path
+from unittest import mock
 
 from freezegun import freeze_time
-from later.unittest import mock
-
-# until we upgrade to >=3.8
-from later.unittest.backport.async_case import IsolatedAsyncioTestCase
 
 
-class TestFileCache(IsolatedAsyncioTestCase):
+class TestFileCache(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.params = {
             "units": {
