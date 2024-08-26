@@ -5,8 +5,8 @@ import zlib
 from pathlib import Path
 from typing import Optional
 
-import aiofiles
-import aiofiles.os
+import aiofiles  # type: ignore
+import aiofiles.os  # type: ignore
 
 from .abstractcache import AbstractCache
 
@@ -53,9 +53,9 @@ class FileCache(AbstractCache):
         cache_file_path = self._hash_to_path(key)
 
         try:
-            await aiofiles.os.stat(cache_file_path.parent)
+            await aiofiles.os.stat(cache_file_path.parent)  # type: ignore
         except FileNotFoundError:
-            await aiofiles.os.mkdir(cache_file_path.parent)
+            await aiofiles.os.mkdir(cache_file_path.parent)  # type: ignore
 
         if await self._is_cached_file_valid(cache_file_path):
             return
@@ -66,20 +66,20 @@ class FileCache(AbstractCache):
 
     async def get(self, key: str) -> Optional[bytes]:
         if not key:
-            return
+            return  # type: ignore
         file_path = self._hash_to_path(key)
 
         if not await self._is_cached_file_valid(file_path):
-            return
+            return  # type: ignore
         try:
             async with aiofiles.open(file_path, "rb") as f:
                 return zlib.decompress(await f.read())
         except (OSError, IOError) as e:
             logging.error(f"error while reading the file {file_path}", e)
-            return
+            return  # type: ignore
 
-    async def _is_cached_file_valid(self, file_path: Path) -> bool:
-        if not file_path.exists():
+    async def _is_cached_file_valid(self, file_path: Optional[Path]) -> bool:
+        if file_path is None or not file_path.exists():
             return False
         stats = await aiofiles.os.stat(file_path)
         file_modification_timestamp = int(stats.st_mtime)
@@ -95,5 +95,5 @@ class FileCache(AbstractCache):
         as the filename.
         """
         if not key_hash:
-            return
+            return  # type: ignore
         return Path(self.cache_path, key_hash[:3], key_hash[3:])

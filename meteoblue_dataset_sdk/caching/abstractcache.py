@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 
 class AbstractCache(ABC):
@@ -18,7 +19,7 @@ class AbstractCache(ABC):
         raise NotImplementedError("Method must be implemented")
 
     @abstractmethod
-    async def get(self, key: str) -> bytes:
+    async def get(self, key: str) -> Optional[bytes]:
         """
         Retrieve a value from the cache
         :param key: Key used to store the query to retrieve.

@@ -2,17 +2,18 @@
 meteoblue dataset client
 """
 
+import aiohttp
 import asyncio
 import copy
 import hashlib
 import json
 import logging
 from contextlib import asynccontextmanager
+from typing import Optional
 
-import aiohttp
-
-from .protobuf.dataset_pb2 import DatasetApiProtobuf
-from .protobuf.measurements_pb2 import MeasurementApiProtobuf
+from .caching.filecache import FileCache
+from .protobuf.dataset_pb2 import DatasetApiProtobuf  # type: ignore
+from .protobuf.measurements_pb2 import MeasurementApiProtobuf  # type: ignore
 from .utils import run_async
 
 
@@ -53,7 +54,7 @@ class ApiError(Error):
 
 
 class Client(object):
-    def __init__(self, apikey: str, cache=None):
+    def __init__(self, apikey: str, cache: Optional[FileCache] = None):
         self._config = ClientConfig(apikey)
         self.cache = cache
 
@@ -63,8 +64,8 @@ class Client(object):
         session: aiohttp.ClientSession,
         method: str,
         url: str,
-        body_dict: dict = None,
-        query_params: dict = None,
+        body_dict: Optional[dict] = None,
+        query_params: Optional[dict] = None,
     ):
         """
         Fetch data from an URL and try for error 5xx or timeouts.
@@ -210,7 +211,7 @@ class Client(object):
         params = copy.copy(params)
         params["format"] = "protobuf"
         cache_key = ""
-        if self.cache:
+        if self.cache is not None:
             cache_key = self._hash_params(params)
             cached_query_results = await self.cache.get(cache_key)
             if cached_query_results:
