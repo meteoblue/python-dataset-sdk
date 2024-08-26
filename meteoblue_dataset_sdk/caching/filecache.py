@@ -3,6 +3,7 @@ import logging
 import tempfile
 import zlib
 from pathlib import Path
+from random import randrange
 from typing import Optional
 
 import aiofiles  # type: ignore
@@ -59,10 +60,19 @@ class FileCache(AbstractCache):
 
         if await self._is_cached_file_valid(cache_file_path):
             return
-        temp_file_path = f"{cache_file_path}~"
+
+        # add random number to temporary file name to mitigate possible race conditions
+        # from multiple processes writing to exactly the same file
+        random_number = randrange(1000000000)
+        temp_file_path = f"{cache_file_path}_{random_number}~"
         async with aiofiles.open(temp_file_path, "wb") as file:
             await file.write(zlib.compress(value, self.compression_level))
-        await aiofiles.os.rename(temp_file_path, cache_file_path)
+
+        try:
+            await aiofiles.os.rename(temp_file_path, cache_file_path)
+        except FileNotFoundError:
+            # do not raise error, just continue
+            return
 
     async def get(self, key: str) -> Optional[bytes]:
         if not key:
