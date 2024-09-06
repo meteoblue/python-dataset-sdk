@@ -74,7 +74,7 @@ class TestMeasurementQuery(unittest.TestCase):
                 "lat",
                 "lon",
                 "asl",
-                "temperature_2mAbvGnd_atTimestamp_none_degCels",
+                "airTemperature_2m",
             ],
         }
         provider = "dwdClimate10Minute"
@@ -93,7 +93,7 @@ class TestMeasurementQuery(unittest.TestCase):
         lons = self.getColumnValues(result, "lon")
         asls = self.getColumnValues(result, "asl")
         temperatures = self.getColumnValues(
-            result, "temperature_2mAbvGnd_atTimestamp_none_degCels"
+            result, "airTemperature_2m"
         )
 
         self.assertEqual(rows_per_page, 10)
