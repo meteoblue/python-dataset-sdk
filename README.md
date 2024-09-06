@@ -23,8 +23,9 @@ Example notebooks:
 - Install the module with `pip install 'meteoblue_dataset_sdk >=1.0,<2.0'` (Sometimes `pip3`)
 
 This module will also install the following dependencies automatically:
-- aiohttp >=3.6,<4
-- protobuf >=3.0,<4
+- aiohttp >=3.9,<4
+- protobuf >=5.0,<6
+- aiofiles >=24.1.0,<25
 
 
 ## Usage
@@ -50,7 +51,7 @@ query = {
         "locationNames": ["Basel"],
     },
     "format": "protobuf",
-    "timeIntervals": ["2019-01-01T+00:00/2019-01-01T+00:00"],
+    "timeIntervals": ["2019-01-01T+04:00/2019-01-01T+04:00"],
     "timeIntervalsAlignment": "none",
     "queries": [
         {
@@ -69,10 +70,11 @@ timeInterval = result.geometries[0].timeIntervals[0]
 data = result.geometries[0].codes[0].timeIntervals[0].data
 
 print(timeInterval)
-# start: 1546300800
-# end: 1546387200
+# start: 1546286400
+# end: 1546372800
 # stride: 3600
 ```
+NOTE: a UTC offset can be specified in the time interval (in the example: `+04:00`)
 
 NOTE: `timeInterval.end` is the first timestamp that is not included anymore in the time interval.
 
@@ -105,21 +107,21 @@ Time intervals are encoded as a simple `start`, `end` and `stride` unix timestam
 import datetime as dt
 
 print(timeInterval)
-# start: 1546300800
-# end: 1546387200
+# start: 1546286400
+# end: 1546372800
 # stride: 3600
 
 timerange = range(timeInterval.start, timeInterval.end, timeInterval.stride)
-timestamps = list(map(lambda t: dt.date.fromtimestamp(t), timerange))
+timestamps = list(map(lambda t: dt.datetime.fromtimestamp(t, dt.timezone.utc), timerange))
 ```
 
-This code works well for regular timesteps like hourly, 3-hourly or daily data. Monthly data is unfortunately not regular, and the API returns timestamps as an string array. The following code takes care of all cases and always returns an array of datetime objects:
+This code works well for regular timesteps like hourly, 3-hourly or daily data. Monthly data is unfortunately not regular, and the API returns timestamps as an string array. The following code takes care of all cases and always returns an array of datetime objects. Note that a timezone object different from UTC can be specified to e.g. match the utc offset of the request:
 
 ```python
 import datetime as dt
 import dateutil.parser
 
-def meteoblue_timeinterval_to_timestamps(t):
+def meteoblue_timeinterval_to_timestamps(t, timezone = dt.timezone.utc):
     if len(t.timestrings) > 0:
         def map_ts(time):
             if "-" in time:
@@ -129,11 +131,23 @@ def meteoblue_timeinterval_to_timestamps(t):
         return list(map(map_ts, t.timestrings))
 
     timerange = range(t.start, t.end, t.stride)
-    return list(map(lambda t: dt.datetime.fromtimestamp(t), timerange))
+    return list(map(lambda t: dt.datetime.fromtimestamp(t, timezone), timerange))
 
 query = { ... }
 result = client.query_sync(query)
-timestamps = meteoblue_timeinterval_to_timestamps(result.geometries[0].timeIntervals[0])
+timestamps_utc = meteoblue_timeinterval_to_timestamps(timeInterval)
+print(timestamps_utc)
+# [datetime.datetime(2018, 12, 31, 20, 0, tzinfo=datetime.timezone.utc),
+#  datetime.datetime(2018, 12, 31, 21, 0, tzinfo=datetime.timezone.utc),
+#  ...]
+
+
+timezone = dt.timezone(dt.timedelta(hours=4))
+timestamps = meteoblue_timeinterval_to_timestamps(timeInterval, timezone)
+print(timestamps)
+# [datetime.datetime(2019, 1, 1, 0, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=14400))),
+#  datetime.datetime(2019, 1, 1, 1, 0, tzinfo=datetime.timezone(datetime.timedelta(seconds=14400))),
+#  ...]
 ```
 
 ## Working with dataframes
@@ -179,48 +193,48 @@ More detailed output of the `result` protobuf object:
 ```
 geometries {
   domain: "NEMSGLOBAL"
-  lats: 47.66651916503906
+  lats: 47.6665192
   lons: 7.5
-  asls: 499.7736511230469
+  asls: 499.773651
   locationNames: "Basel"
   nx: 1
   ny: 1
   timeResolution: "hourly"
   timeIntervals {
-    start: 1546300800
-    end: 1546387200
+    start: 1546286400
+    end: 1546372800
     stride: 3600
   }
   codes {
     code: 11
     level: "2 m above gnd"
-    unit: "\302\260C"
+    unit: "°C"
     aggregation: "none"
     timeIntervals {
-      data: 2.890000104904175
-      data: 2.690000057220459
-      data: 2.549999952316284
-      data: 2.380000114440918
-      data: 2.2699999809265137
-      data: 2.119999885559082
-      data: 1.9900000095367432
-      data: 1.8300000429153442
-      data: 1.8200000524520874
-      data: 2.0999999046325684
-      data: 2.430000066757202
-      data: 2.9200000762939453
-      data: 3.7200000286102295
-      data: 3.930000066757202
-      data: 3.9100000858306885
-      data: 3.5299999713897705
-      data: 3.130000114440918
-      data: 2.880000114440918
-      data: 2.6500000953674316
-      data: 2.4600000381469727
-      data: 2.2799999713897705
-      data: 2.0299999713897705
-      data: 1.690000057220459
-      data: 1.3799999952316284
+      data: 3.51
+      data: 3.4
+      data: 3.22
+      data: 3.02
+      data: 2.89
+      data: 2.69
+      data: 2.55
+      data: 2.38
+      data: 2.27
+      data: 2.12
+      data: 1.99
+      data: 1.83
+      data: 1.82
+      data: 2.1
+      data: 2.43
+      data: 2.92
+      data: 3.72
+      data: 3.93
+      data: 3.91
+      data: 3.53
+      data: 3.13
+      data: 2.88
+      data: 2.65
+      data: 2.46
     }
   }
 }
