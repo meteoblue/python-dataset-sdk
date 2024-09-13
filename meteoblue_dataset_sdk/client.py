@@ -148,7 +148,7 @@ class Client(object):
             if status == "error":
                 raise ApiError(json_data["error_message"])
             logging.info(
-                f"Waiting 5 seconds for job to complete. Status: {status}, \
+                f"Waiting {self._config.queue_retry_sleep_duration} seconds for job to complete. Status: {status}, \
                 job id {job_id}"
             )
             await asyncio.sleep(self._config.queue_retry_sleep_duration)
