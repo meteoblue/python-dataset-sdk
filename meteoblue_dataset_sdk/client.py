@@ -169,8 +169,8 @@ class Client(object):
         :return: ClientResponse object from aiohttp lib
         """
 
-        # always try to execute without job queue first:
-        params["runOnJobQueue"] = False
+        # always try to execute without job queue by default:
+        params.setdefault("runOnJobQueue", False)
         async with aiohttp.ClientSession() as session:
             # Try to run the job directly
             # In case the API throws an error, try to run it on a job queue
