@@ -169,21 +169,25 @@ class Client(object):
         :return: ClientResponse object from aiohttp lib
         """
 
-        # always try to execute without job queue first:
-        params["runOnJobQueue"] = False
+        # always try to execute without job queue by default:
+        params.setdefault("runOnJobQueue", False)
         async with aiohttp.ClientSession() as session:
-            # Try to run the job directly
-            # In case the API throws an error, try to run it on a job queue
-            try:
-                url = self._config.query_url.format(self._config.api_key)
-                async with self._fetch(
-                    session, "POST", url, body_dict=params
-                ) as response:
-                    yield response
-            except ApiError as error:
-                # Run on a job queue in case the api throws this error
-                if error.message != "This job must be executed on a job-queue":
-                    raise
+            if not params.get("runOnJobQueue"):
+                # Try to run the job directly
+                # In case the API throws an error, try to run it on a job queue
+                try:
+                    url = self._config.query_url.format(self._config.api_key)
+                    async with self._fetch(
+                        session, "POST", url, body_dict=params
+                    ) as response:
+                        yield response
+                except ApiError as error:
+                    # Run on a job queue in case the api throws this error
+                    if error.message != "This job must be executed on a job-queue":
+                        raise
+                    async with self._run_on_job_queue(session, params) as response:
+                        yield response
+            else:
                 async with self._run_on_job_queue(session, params) as response:
                     yield response
 
