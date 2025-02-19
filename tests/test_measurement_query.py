@@ -39,7 +39,7 @@ class TestMeasurementQuery(unittest.TestCase):
 
     def test_invalid_table_key(self):
         client = Client(os.environ["APIKEY"])
-        path = "/v2/dwdClimateHourly/raw/invalid/get"
+        path = "/v2/provider/dwdClimateHourly/invalid/get"
         expected_error_message = (
             "API returned error message:"
             " Unknown table invalid for provider dwdClimateHourly"
@@ -55,7 +55,7 @@ class TestMeasurementQuery(unittest.TestCase):
         client = Client("invalid_api_key")
         provider = "dwdClimateHourly"
         table = "measurement"
-        path = f"/v2/{provider}/raw/{table}/get"
+        path = f"/v2/provider/{provider}/{table}/get"
 
         with self.assertRaises(ApiError):
             result = asyncio.run(client.measurement_query(path, {"invalid": "query"}))
@@ -79,7 +79,7 @@ class TestMeasurementQuery(unittest.TestCase):
         }
         provider = "dwdClimate10Minute"
         table = "measurement"
-        path = f"/v2/{provider}/raw/{table}/get"
+        path = f"/v2/provider/{provider}/{table}/get"
 
         cache = FileCache()
         client = Client(os.environ["APIKEY"], cache=cache)
